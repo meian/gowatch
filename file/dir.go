@@ -3,6 +3,7 @@ package file
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/meian/gowatch/path"
 )
@@ -43,8 +44,26 @@ type dirBucket struct {
 
 // walk内で見つかったディレクトリパスを格納する
 func (bucket *dirBucket) walk(name string, file os.FileInfo, err error) error {
+	if hasDotPfxDir(name) {
+		return nil
+	}
 	if file.IsDir() {
 		bucket.paths = append(bucket.paths, path.UnixPath(name))
 	}
 	return nil
+}
+
+func hasDotPfxDir(name string) bool {
+	if name == "" {
+		return false
+	}
+	for _, p := range strings.Split(name, "/") {
+		if p == "." || p == ".." {
+			continue
+		}
+		if strings.HasPrefix(p, ".") {
+			return true
+		}
+	}
+	return false
 }
