@@ -40,6 +40,7 @@ func TestRecurseSuccess(t *testing.T) {
 		t.Log(i, d)
 		a.DirExists(d)
 		a.Regexp(pattern, d)
+		a.NotRegexp(`/\.[^/]+/`, d)
 	}
 }
 
