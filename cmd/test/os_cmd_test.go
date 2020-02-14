@@ -1,7 +1,6 @@
 package test_test
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"testing"
@@ -25,7 +24,7 @@ func TestViewMsg(t *testing.T) {
 	msg := e.CmdMsg(cmd)
 	path, err := exec.LookPath("go")
 	if err != nil {
-		t.SkipNow()
+		t.Fatal("not found go executable")
 	}
-	a.Equal(fmt.Sprint(path, " test"), msg)
+	a.Equal(path+" test", msg)
 }

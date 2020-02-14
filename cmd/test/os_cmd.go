@@ -1,10 +1,10 @@
 package test
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 // Cmd はexec.Cmdのラッパー
@@ -24,5 +24,6 @@ func (cmd *Cmd) view() {
 }
 
 func (cmd *Cmd) viewMsg() string {
-	return fmt.Sprint(cmd)
+	params := append([]string{cmd.Path}, cmd.Args[1:]...)
+	return strings.Join(params, " ")
 }
