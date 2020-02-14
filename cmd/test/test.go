@@ -2,8 +2,6 @@ package test
 
 import (
 	"log"
-	"os"
-	"os/exec"
 	"strings"
 	"time"
 
@@ -27,7 +25,7 @@ func LoopTest(c *Context) {
 		c.State = Waiting
 		<-tick
 		fs := c.Changed.PopAll()
-		log.Println("run test:", fs)
+		log.Println("run test target:", fs)
 		c.State = Executing
 		failed := []string{}
 		for _, f := range fs {
@@ -37,10 +35,8 @@ func LoopTest(c *Context) {
 				failed = append(failed, f)
 				continue
 			}
-			cmd := exec.Command("go", args...)
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-			log.Println("run test:", cmd)
+			cmd := newCommand("go", args...)
+			cmd.view()
 			err = cmd.Run()
 			if err != nil {
 				failed = append(failed, f)
