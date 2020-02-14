@@ -1,7 +1,6 @@
 package test
 
 import (
-	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -17,10 +16,6 @@ func newCommand(path string, args ...string) *Cmd {
 	cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
 	oc := &Cmd{Cmd: cmd}
 	return oc
-}
-
-func (cmd *Cmd) view() {
-	log.Println("run test:", cmd.viewMsg())
 }
 
 func (cmd *Cmd) viewMsg() string {

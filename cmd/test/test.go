@@ -36,7 +36,7 @@ func LoopTest(c *Context) {
 				continue
 			}
 			cmd := newCommand("go", args...)
-			cmd.view()
+			log.Println("run test:", cmd.viewMsg())
 			err = cmd.Run()
 			if err != nil {
 				failed = append(failed, f)
