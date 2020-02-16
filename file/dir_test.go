@@ -34,13 +34,13 @@ func TestRecurseSuccess(t *testing.T) {
 	dirPath := "../internal/dirtest"
 	dirs, err := file.RecurseDir(dirPath)
 	a.NoError(err)
-	a.GreaterOrEqual(len(dirs), 1)
+	a.GreaterOrEqual(len(dirs), 3)
 	pattern := fmt.Sprintf("^%v\\b", regexp.QuoteMeta(dirPath))
 	for i, d := range dirs {
 		t.Log(i, d)
 		a.DirExists(d)
 		a.Regexp(pattern, d)
-		a.NotRegexp(`/\.[^/]+/`, d)
+		a.NotRegexp(`/\.[^/]+\b`, d)
 	}
 }
 
