@@ -12,6 +12,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var e = file.Export
+
 func TestRecurseNotFound(t *testing.T) {
 	chdirCurrent(t)
 	a := assert.New(t)
@@ -34,13 +36,33 @@ func TestRecurseSuccess(t *testing.T) {
 	dirPath := "../internal/dirtest"
 	dirs, err := file.RecurseDir(dirPath)
 	a.NoError(err)
-	a.GreaterOrEqual(len(dirs), 1)
+	a.GreaterOrEqual(len(dirs), 3)
 	pattern := fmt.Sprintf("^%v\\b", regexp.QuoteMeta(dirPath))
 	for i, d := range dirs {
 		t.Log(i, d)
 		a.DirExists(d)
 		a.Regexp(pattern, d)
-		a.NotRegexp(`/\.[^/]+/`, d)
+		a.NotRegexp(`/\.[^/]+\b`, d)
+	}
+}
+
+func TestContainsStartWithDot(t *testing.T) {
+	chdirCurrent(t)
+	a := assert.New(t)
+	tests := []struct {
+		name     string
+		expected bool
+	}{
+		{name: "foo/bar", expected: false},
+		{name: "foo/.bar", expected: true},
+		{name: "./foo/bar", expected: false},
+		{name: "../foo/bar", expected: false},
+		{name: "foo/.bar/sub", expected: true},
+		{name: ".foo/bar", expected: true},
+	}
+	for _, test := range tests {
+		actual := e.ContainsStartWithDot(test.name)
+		a.Equal(test.expected, actual, test.name)
 	}
 }
 

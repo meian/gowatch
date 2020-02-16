@@ -44,16 +44,17 @@ type dirBucket struct {
 
 // walk内で見つかったディレクトリパスを格納する
 func (bucket *dirBucket) walk(name string, file os.FileInfo, err error) error {
-	if hasDotPfxDir(name) {
+	name = path.UnixPath(name)
+	if containsStartWithDot(name) {
 		return nil
 	}
 	if file.IsDir() {
-		bucket.paths = append(bucket.paths, path.UnixPath(name))
+		bucket.paths = append(bucket.paths, name)
 	}
 	return nil
 }
 
-func hasDotPfxDir(name string) bool {
+func containsStartWithDot(name string) bool {
 	if name == "" {
 		return false
 	}
