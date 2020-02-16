@@ -3,12 +3,16 @@ on: [push]
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         gover:
           - "1.12"
           - "1.13"
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
       fail-fast: false
     steps:
       - name: Set up Go ${{ matrix.gover }}
