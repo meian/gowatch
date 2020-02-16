@@ -16,7 +16,7 @@ var Test *cli.Command
 func init() {
 	Test = &cli.Command{
 		Name:  "test",
-		Usage: "watch directory change and trigger test",
+		Usage: "watch file change and trigger test, default path is current directory",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:    "recursive",
