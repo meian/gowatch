@@ -11,23 +11,27 @@ import (
 )
 
 // Test は変更監視とテストを実行するコマンド
-var Test = &cli.Command{
-	Name:  "test",
-	Usage: "watch directory change and trigger test",
-	Flags: []cli.Flag{
-		&cli.BoolFlag{
-			Name:    "recursive",
-			Aliases: []string{"r"},
-			Usage:   "include subdirectories",
+var Test *cli.Command
+
+func init() {
+	Test = &cli.Command{
+		Name:  "test",
+		Usage: "watch directory change and trigger test",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "recursive",
+				Aliases: []string{"r"},
+				Usage:   "include subdirectories",
+			},
+			&cli.BoolFlag{
+				Name:    "verbose",
+				Aliases: []string{"v"},
+				Usage:   "show detail",
+			},
 		},
-		&cli.BoolFlag{
-			Name:    "verbose",
-			Aliases: []string{"v"},
-			Usage:   "show detail",
-		},
-	},
-	ArgsUsage: "[PATH]",
-	Action:    testAction,
+		ArgsUsage: "[PATH]",
+		Action:    testAction,
+	}
 }
 
 func testAction(c *cli.Context) error {
