@@ -44,7 +44,7 @@ func LoopTest(c *Context) {
 		}
 		if len(failed) > 0 {
 			log.Println("return changed to failed tests:", failed)
-			c.Changed.AddSlice(failed)
+			c.Changed.Add(failed...)
 		}
 		c.State = None
 	}
