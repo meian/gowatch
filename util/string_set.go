@@ -17,16 +17,11 @@ func NewStringSet() *StringSet {
 	return ss
 }
 
-// Add は文字列を追加する
-func (ss *StringSet) Add(s string) {
-	ss.AddSlice([]string{s})
-}
-
-// AddSlice はスライスの文字列を追加する
-func (ss *StringSet) AddSlice(list []string) {
+// Add は文字列をセットに追加する
+func (ss *StringSet) Add(slice ...string) {
 	ss.mtx.Lock()
 	defer ss.mtx.Unlock()
-	for _, s := range list {
+	for _, s := range slice {
 		if _, ok := ss.m[s]; !ok {
 			ss.m[s] = true
 		}
