@@ -45,7 +45,7 @@ func LoopTest(c *Context) {
 		if len(failed) > 0 {
 			c.Changed.Add(failed...)
 		}
-		log.Printf("all tests are executed: success = %d, failed = %d", len(fs)-len(failed), len(failed))
+		log.Printf("all tests are executed: success = %d, failure = %d", len(fs)-len(failed), len(failed))
 		c.State = None
 	}
 }
