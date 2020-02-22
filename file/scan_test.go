@@ -4,11 +4,12 @@ import (
 	"testing"
 
 	"github.com/meian/gowatch/file"
+	"github.com/meian/gowatch/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestScan(t *testing.T) {
-	chdirCurrent(t)
+	testutil.ChCurrentDir()
 	a := assert.New(t)
 	path := "../internal/srctest/test_for_scan.go"
 	names, err := file.ScanTests(path)

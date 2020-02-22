@@ -3,19 +3,18 @@ package file_test
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"regexp"
-	"runtime"
 	"testing"
 
 	"github.com/meian/gowatch/file"
+	"github.com/meian/gowatch/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
 var e = file.Export
 
 func TestRecurseNotFound(t *testing.T) {
-	chdirCurrent(t)
+	testutil.ChCurrentDir()
 	a := assert.New(t)
 	dirPath := "../internal/noexists"
 	_, err := file.RecurseDir(dirPath)
@@ -23,7 +22,7 @@ func TestRecurseNotFound(t *testing.T) {
 }
 
 func TestRecurseNoDir(t *testing.T) {
-	chdirCurrent(t)
+	testutil.ChCurrentDir()
 	a := assert.New(t)
 	dirPath := "../internal/dirtest/a/b/c/dummy"
 	_, err := file.RecurseDir(dirPath)
@@ -31,7 +30,7 @@ func TestRecurseNoDir(t *testing.T) {
 }
 
 func TestRecurseSuccess(t *testing.T) {
-	chdirCurrent(t)
+	testutil.ChCurrentDir()
 	a := assert.New(t)
 	dirPath := "../internal/dirtest"
 	dirs, err := file.RecurseDir(dirPath)
@@ -47,7 +46,7 @@ func TestRecurseSuccess(t *testing.T) {
 }
 
 func TestContainsStartWithDot(t *testing.T) {
-	chdirCurrent(t)
+	testutil.ChCurrentDir()
 	a := assert.New(t)
 	tests := []struct {
 		name     string
@@ -63,17 +62,5 @@ func TestContainsStartWithDot(t *testing.T) {
 	for _, test := range tests {
 		actual := e.ContainsStartWithDot(test.name)
 		a.Equal(test.expected, actual, test.name)
-	}
-}
-
-func chdirCurrent(t *testing.T) {
-	_, file, _, ok := runtime.Caller(0)
-	if !ok {
-		panic("cannot get current path")
-	}
-	err := os.Chdir(filepath.Dir(file))
-	if err != nil {
-		t.Fatal(err)
-		panic("cannot change directory")
 	}
 }
