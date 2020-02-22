@@ -39,11 +39,7 @@ func LoopFSEvent(c *Context) {
 // ファイルの書き込みがあった場合はテスト候補に追加
 func onWrite(c *Context, event fsnotify.Event) {
 	fName := event.Name
-	testFile, err := path.ToTestPath(fName)
-	if err != nil {
-		// not a go source
-		return
-	}
+	testFile := path.ToTestPath(fName)
 	if stat, err := os.Stat(testFile); err != nil || stat.IsDir() {
 		// not a file
 		return
