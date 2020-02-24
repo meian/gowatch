@@ -24,33 +24,36 @@ func LoopTest(c *Context) {
 		c.Triggered = false
 		c.State = Waiting
 		<-tick
-		fs := c.Changed.PopAll()
-		log.Println("run test target:", fs)
+		testMap, _ := c.Changed.PopAll()
 		c.State = Executing
-		failed := []string{}
-		for _, f := range fs {
-			args, err := cmdArgs(f, c)
+		failed := []*file.Pair{}
+		s, f := 0, 0
+		for testFile, pairs := range testMap {
+			log.Println("run test target:", testFile)
+			args, err := cmdArgs(c, testFile)
 			if err != nil {
 				log.Println("error at command args", err)
-				failed = append(failed, f)
+				failed = append(failed, pairs...)
+				f++
 				continue
 			}
 			cmd := newCommand("go", args...)
 			log.Println("run test:", cmd.viewMsg())
 			err = cmd.Run()
 			if err != nil {
-				failed = append(failed, f)
+				failed = append(failed, pairs...)
+				f++
+			} else {
+				s++
 			}
 		}
-		if len(failed) > 0 {
-			c.Changed.Add(failed...)
-		}
-		log.Printf("all tests are executed: success = %d, failure = %d", len(fs)-len(failed), len(failed))
+		c.Changed.Add(failed...)
+		log.Printf("all tests are executed: success = %d, failure = %d", s, f)
 		c.State = None
 	}
 }
 
-func cmdArgs(src string, c *Context) ([]string, error) {
+func cmdArgs(c *Context, src string) ([]string, error) {
 	pattern, err := testPattern(src)
 	if err != nil {
 		return nil, err

@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/meian/gowatch/path"
+	"github.com/meian/gowatch/file"
 )
 
 // LoopFSEvent はファイル監視イベントを処理するループ
@@ -38,13 +38,12 @@ func LoopFSEvent(c *Context) {
 
 // ファイルの書き込みがあった場合はテスト候補に追加
 func onWrite(c *Context, event fsnotify.Event) {
-	fName := event.Name
-	testFile := path.ToTestPath(fName)
-	if stat, err := os.Stat(testFile); err != nil || stat.IsDir() {
-		// not a file
+	pair, err := file.NewPair(event.Name)
+	if err != nil {
+		// not a go file
 		return
 	}
-	c.Changed.Add(testFile)
+	c.Changed.Add(pair)
 	c.Triggered = true
 }
 

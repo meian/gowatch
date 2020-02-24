@@ -3,7 +3,6 @@ package test
 import (
 	"github.com/meian/gowatch/file"
 	"github.com/meian/gowatch/notify"
-	"github.com/meian/gowatch/util"
 )
 
 const (
@@ -20,7 +19,7 @@ type Context struct {
 	Config      *Config
 	Watcher     *notify.Watcher
 	Directories []string
-	Changed     *util.StringSet
+	Changed     *file.PairMap
 	State       int
 	Triggered   bool
 	Done        chan error
@@ -30,7 +29,7 @@ type Context struct {
 func NewContext(config *Config) (*Context, error) {
 	c := &Context{
 		Config:  config,
-		Changed: util.NewStringSet(),
+		Changed: file.NewPairMap(),
 		State:   None,
 		Done:    make(chan error),
 	}
