@@ -49,18 +49,19 @@ func TestContainsStartWithDot(t *testing.T) {
 	testutil.ChCurrentDir()
 	a := assert.New(t)
 	tests := []struct {
+		desc     string
 		name     string
 		expected bool
 	}{
-		{name: "foo/bar", expected: false},
-		{name: "foo/.bar", expected: true},
-		{name: "./foo/bar", expected: false},
-		{name: "../foo/bar", expected: false},
-		{name: "foo/.bar/sub", expected: true},
-		{name: ".foo/bar", expected: true},
+		{desc: "no dot path", name: "foo/bar", expected: false},
+		{desc: "last path is dot started", name: "foo/.bar", expected: true},
+		{desc: "first path is dot started", name: ".foo/bar", expected: true},
+		{desc: "middle path is dot started", name: "foo/.bar/sub", expected: true},
+		{desc: "start path is curret", name: "./foo/bar", expected: false},
+		{desc: "start path is parent", name: "../foo/bar", expected: false},
 	}
 	for _, test := range tests {
 		actual := e.ContainsStartWithDot(test.name)
-		a.Equal(test.expected, actual, test.name)
+		a.Equal(test.expected, actual, test)
 	}
 }
