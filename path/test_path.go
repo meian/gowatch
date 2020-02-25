@@ -3,19 +3,17 @@ package path
 import "strings"
 
 const (
-	// SrcSuffix はgoソースファイルのサフィックス
-	SrcSuffix = ".go"
-	// TestSuffix はテストソースファイルのサフィックス
-	TestSuffix = "_test.go"
+	// テストソースファイルのサフィックス
+	testSuffix = "_test.go"
 )
 
 // ToTestPath はテストソースのパス(xxx_test.go)を返す
-func ToTestPath(path string) (string, error) {
+func ToTestPath(path string) string {
 	switch {
-	case !strings.HasSuffix(path, SrcSuffix):
-		return "", NoGoFileError{path}
-	case !strings.HasSuffix(path, TestSuffix):
-		path = strings.TrimSuffix(path, SrcSuffix) + TestSuffix
+	case !IsGoFile(path):
+		return path
+	case strings.HasSuffix(path, testSuffix):
+		return path
 	}
-	return UnixPath(path), nil
+	return strings.TrimSuffix(path, goSuffix) + testSuffix
 }
