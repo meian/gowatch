@@ -42,7 +42,8 @@ func (m *PairMap) Count() int {
 	return len(m.m)
 }
 
-// PopAll はマップ内のペアをスライスで返し、マップ内の要素をクリアする
+// PopAll はマップ内のペアをテスト有無で仕分けて返し、マップ内の要素をクリアする
+// TODO: 複雑になってきたので後で分ける構成考える
 func (m *PairMap) PopAll() (pMap map[string][]*Pair, noTests []string) {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
