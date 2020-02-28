@@ -24,10 +24,13 @@ func LoopTest(c *Context) {
 		c.Triggered = false
 		c.State = Waiting
 		<-tick
-		testMap, _ := c.Changed.PopAll()
+		testMap, noTests := c.Changed.PopAll()
 		c.State = Executing
-		failed := []*file.Pair{}
-		s, f := 0, 0
+		failures := []*file.Pair{}
+		success, skipped := 0, len(noTests)
+		for _, nt := range noTests {
+			log.Println("skip test for no test file:", nt)
+		}
 		for testFile, pairs := range testMap {
 			log.Println("run test target:", testFile)
 			for _, p := range pairs {
@@ -36,22 +39,21 @@ func LoopTest(c *Context) {
 			args, err := cmdArgs(c, testFile)
 			if err != nil {
 				log.Println("error at command args", err)
-				failed = append(failed, pairs...)
-				f++
+				failures = append(failures, pairs...)
 				continue
 			}
 			cmd := newCommand("go", args...)
 			log.Println("run test:", cmd.viewMsg())
 			err = cmd.Run()
 			if err != nil {
-				failed = append(failed, pairs...)
-				f++
+				failures = append(failures, pairs...)
 			} else {
-				s++
+				success++
 			}
 		}
-		c.Changed.Add(failed...)
-		log.Printf("all tests are executed: success = %d, failure = %d", s, f)
+		failed := len(failures)
+		c.Changed.Add(failures...)
+		log.Printf("all tests are executed: success = %d, failure = %d, skipped = %d", success, failed, skipped)
 		c.State = None
 	}
 }
