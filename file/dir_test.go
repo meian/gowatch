@@ -38,10 +38,11 @@ func TestRecurseSuccess(t *testing.T) {
 	a.GreaterOrEqual(len(dirs), 3)
 	pattern := fmt.Sprintf("^%v\\b", regexp.QuoteMeta(dirPath))
 	for i, d := range dirs {
-		t.Log(i, d)
-		a.DirExists(d)
-		a.Regexp(pattern, d)
-		a.NotRegexp(`/\.[^/]+\b`, d)
+		t.Run(fmt.Sprintf("%d=>%s", i, d), func(t *testing.T) {
+			a.DirExists(d)
+			a.Regexp(pattern, d)
+			a.NotRegexp(`/\.[^/]+\b`, d)
+		})
 	}
 }
 
@@ -60,8 +61,10 @@ func TestContainsStartWithDot(t *testing.T) {
 		{desc: "start path is curret", name: "./foo/bar", expected: false},
 		{desc: "start path is parent", name: "../foo/bar", expected: false},
 	}
-	for _, test := range tests {
-		actual := e.ContainsStartWithDot(test.name)
-		a.Equal(test.expected, actual, test)
+	for _, tt := range tests {
+		t.Run(tt.desc, func(t *testing.T) {
+			actual := e.ContainsStartWithDot(tt.name)
+			a.Equal(tt.expected, actual)
+		})
 	}
 }

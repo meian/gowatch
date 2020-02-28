@@ -19,8 +19,10 @@ func TestIsGoFile(t *testing.T) {
 		{desc: "go file", file: "sample.go", expected: true},
 		{desc: "go test file", file: "sample_test.go", expected: true},
 	}
-	for _, test := range tests {
-		actual := path.IsGoFile(test.file)
-		a.Equal(test.expected, actual, test)
+	for _, tt := range tests {
+		t.Run(tt.desc, func(t *testing.T) {
+			actual := path.IsGoFile(tt.file)
+			a.Equal(tt.expected, actual)
+		})
 	}
 }

@@ -21,9 +21,11 @@ func TestIsFile(t *testing.T) {
 		{desc: "is directory", path: "a/b/c", expected: false},
 		{desc: "not exists", path: "a/b/c/dummy2", expected: false},
 	}
-	for _, test := range tests {
-		fullPath := p.Join("../internal/dirtest", test.path)
-		actual := file.IsFile(fullPath)
-		a.Equal(test.expected, actual, test)
+	for _, tt := range tests {
+		t.Run(tt.desc, func(t *testing.T) {
+			fullPath := p.Join("../internal/dirtest", tt.path)
+			actual := file.IsFile(fullPath)
+			a.Equal(tt.expected, actual)
+		})
 	}
 }
