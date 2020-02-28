@@ -1,6 +1,8 @@
 package file
 
 import (
+	"fmt"
+
 	"github.com/meian/gowatch/path"
 )
 
@@ -29,4 +31,8 @@ func (p *Pair) TestEnabled() bool {
 		return false
 	}
 	return IsFile(p.Test)
+}
+
+func (p *Pair) String() string {
+	return fmt.Sprint(p.Detected, " => ", p.Test)
 }

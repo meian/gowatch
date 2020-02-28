@@ -30,6 +30,9 @@ func LoopTest(c *Context) {
 		s, f := 0, 0
 		for testFile, pairs := range testMap {
 			log.Println("run test target:", testFile)
+			for _, p := range pairs {
+				log.Println(p)
+			}
 			args, err := cmdArgs(c, testFile)
 			if err != nil {
 				log.Println("error at command args", err)
