@@ -9,6 +9,7 @@ jobs:
         gover:
           - "1.12"
           - "1.13"
+          - "1.14"
         os:
           - ubuntu-18.04
           - windows-2019
