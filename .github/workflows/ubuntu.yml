@@ -1,0 +1,88 @@
+name: Ubuntu
+on: [push]
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-18.04
+    timeout-minutes: 2
+    strategy:
+      matrix:
+        go-version:
+          - "1.12"
+          - "1.13"
+          - "1.14"
+      fail-fast: false
+    steps:
+      - name: Set up Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+      - name: Cache
+        uses: actions/cache@v1
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ matrix.go-version }}-
+      - name: Test
+        run: go test ./... -race
+
+  build:
+    name: Build
+    runs-on: ubuntu-18.04
+    timeout-minutes: 2
+    strategy:
+      matrix:
+        go-version:
+          - "1.14"
+    steps:
+      - name: Set up Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+      - name: Cache
+        uses: actions/cache@v1
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ matrix.go-version }}-
+      - name: Build
+        run: go build -v .
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-18.04
+    timeout-minutes: 2
+    needs: test
+    strategy:
+      matrix:
+        go-version:
+          - "1.14"
+    steps:
+      - name: Set up Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+      - name: Cache
+        uses: actions/cache@v1
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ matrix.go-version }}-
+      - name: Report
+        run: go test ./... -race -coverprofile=./cover.txt -covermode=atomic
+      - name: Upload
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./cover.txt
+          flags: unittests
+          fail_ci_if_error: true
