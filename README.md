@@ -2,6 +2,7 @@
 
 ![Go](https://github.com/meian/gowatch/workflows/Go/badge.svg)
 [![GitHub license](https://img.shields.io/github/license/meian/gowatch?color=orange)](https://github.com/meian/gowatch/blob/master/LICENSE)
+[![codecov](https://codecov.io/gh/meian/gowatch/branch/master/graph/badge.svg)](https://codecov.io/gh/meian/gowatch)
 
 Watch file change and run test.  
 Current support is only test.
