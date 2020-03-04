@@ -54,3 +54,10 @@ func (w *Watcher) Watched(dir string) bool {
 	_, ok := w.dirs[dir]
 	return ok
 }
+
+// Close は監視処理を停止して管理情報をクリアする
+func (w *Watcher) Close() error {
+	err := w.Watcher.Close()
+	w.dirs = map[string]bool{}
+	return err
+}
