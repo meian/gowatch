@@ -52,6 +52,24 @@ func TestDirPath(t *testing.T) {
 			dirIsUnix: `./c:/foo`, // no occurred
 			dirIsWin:  `c:/foo`,
 		},
+		{
+			desc:      "no path",
+			src:       "bar.go",
+			dirIsUnix: ".",
+			dirIsWin:  ".",
+		},
+		{
+			desc:      "dot start no path",
+			src:       "./bar.go",
+			dirIsUnix: ".",
+			dirIsWin:  ".",
+		},
+		{
+			desc:      "double dot start no path",
+			src:       "../bar.go",
+			dirIsUnix: "..",
+			dirIsWin:  "..",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.desc, func(t *testing.T) {
