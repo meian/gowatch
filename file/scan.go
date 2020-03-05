@@ -12,7 +12,7 @@ var pattern *regexp.Regexp
 func ScanTests(testPath string) ([]string, error) {
 	file, err := os.Open(testPath)
 	if err != nil {
-		return nil, &ReadError{Name: testPath}
+		return nil, ReadError{Path: testPath}
 	}
 	defer file.Close()
 	names := make([]string, 0)

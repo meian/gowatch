@@ -27,9 +27,6 @@ func NewPair(detected string) (*Pair, error) {
 
 // TestEnabled はファイルペアのテストが有効であるかを返す
 func (p *Pair) TestEnabled() bool {
-	if p == nil {
-		return false
-	}
 	return IsFile(p.Test)
 }
 

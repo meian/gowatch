@@ -55,9 +55,6 @@ func (bucket *dirBucket) walk(name string, file os.FileInfo, err error) error {
 }
 
 func containsStartWithDot(name string) bool {
-	if name == "" {
-		return false
-	}
 	for _, p := range strings.Split(name, "/") {
 		if p == "." || p == ".." {
 			continue
