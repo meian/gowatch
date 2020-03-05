@@ -9,10 +9,11 @@ import (
 
 // DirPath はソースコードのディレクトリパスを返す
 func DirPath(src string) string {
-	pkg := UnixPath(filepath.Dir(src))
+	pkg := filepath.Dir(UnixPath(src))
 	if pkg == "" {
 		return pkg
 	}
+	pkg = UnixPath(pkg)
 	if m, _ := regexp.MatchString(pattern(), pkg); m {
 		return pkg
 	}
