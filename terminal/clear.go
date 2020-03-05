@@ -16,7 +16,7 @@ func Clear() error {
 
 // OS依存のターミナルクリアのコマンド
 func clearCmd() *exec.Cmd {
-	if util.IsWindows() {
+	if util.IsWindows {
 		return exec.Command("cmd", "/c", "cls")
 	}
 	return exec.Command("clear")

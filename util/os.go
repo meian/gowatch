@@ -2,7 +2,11 @@ package util
 
 import "runtime"
 
-// IsWindows は実行環境がWindowsであるかどうかを返す
-func IsWindows() bool {
-	return runtime.GOOS == "windows"
+var (
+	// IsWindows は実行環境がWindowsであるかどうかを返す、テスト時は値を後で設定可能
+	IsWindows = false
+)
+
+func init() {
+	IsWindows = runtime.GOOS == "windows"
 }
