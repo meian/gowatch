@@ -20,7 +20,7 @@ func DirPath(src string) string {
 }
 
 func pattern() string {
-	if util.IsWindows() {
+	if util.IsWindows {
 		return `^(\w:|\.{0,2}/)`
 	}
 	return `^\.{0,2}/`
