@@ -3,7 +3,6 @@ package file_test
 import (
 	"fmt"
 	"os"
-	"reflect"
 	"regexp"
 	"testing"
 
@@ -113,15 +112,10 @@ func TestTargetDirs(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			a := assert.New(t)
 			got, err := file.TargetDirs(tt.args.dirPath, tt.args.recursive)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("TargetDirs() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			t.Log(got)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("TargetDirs() = %v, want %v", got, tt.want)
-			}
+			a.Equal(tt.wantErr, err != nil)
+			a.ElementsMatch(tt.want, got)
 		})
 	}
 }
