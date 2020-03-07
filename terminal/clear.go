@@ -7,17 +7,21 @@ import (
 	"github.com/meian/gowatch/util"
 )
 
-// Clear はターミナルをクリアする
-func Clear() error {
-	cmd := clearCmd()
-	cmd.Stdout = os.Stdout
-	return cmd.Run()
+var (
+	clrCmd *exec.Cmd
+)
+
+func init() {
+	if util.IsWindows {
+		clrCmd = exec.Command("cmd", "/c", "cls")
+	} else {
+		clrCmd = exec.Command("clear")
+	}
+	clrCmd.Stdout = os.Stdout
 }
 
-// OS依存のターミナルクリアのコマンド
-func clearCmd() *exec.Cmd {
-	if util.IsWindows {
-		return exec.Command("cmd", "/c", "cls")
-	}
-	return exec.Command("clear")
+// Clear はターミナルをクリアする
+func Clear() error {
+	// ANSI escapeでもクリアできるけどWindowsの標準ターミナルで動かないのでコマンドで処理する
+	return clrCmd.Run()
 }
