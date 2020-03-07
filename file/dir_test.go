@@ -81,27 +81,27 @@ func TestTargetDirs(t *testing.T) {
 		recursive bool
 	}
 	tests := []struct {
-		name    string
+		desc    string
 		args    args
 		want    []string
 		wantErr bool
 	}{
-		{name: "not exists - no recursive",
+		{desc: "not exists - no recursive",
 			args:    args{dirPath: "../internal/noexists", recursive: false},
 			wantErr: true},
-		{name: "not exists - recursive",
+		{desc: "not exists - recursive",
 			args:    args{dirPath: "../internal/noexists", recursive: true},
 			wantErr: true},
-		{name: "no directory - no recursive",
+		{desc: "no directory - no recursive",
 			args:    args{dirPath: "../internal/dirtest/a/b/c/dummy", recursive: false},
 			wantErr: true},
-		{name: "no directory - recursive",
+		{desc: "no directory - recursive",
 			args:    args{dirPath: "../internal/dirtest/a/b/c/dummy", recursive: true},
 			wantErr: true},
-		{name: "directory - no recursive",
+		{desc: "directory - no recursive",
 			args: args{dirPath: "../internal/dirtest", recursive: false},
 			want: []string{"../internal/dirtest"}},
-		{name: "directory - recursive",
+		{desc: "directory - recursive",
 			args: args{dirPath: "../internal/dirtest", recursive: true},
 			want: []string{
 				"../internal/dirtest",
@@ -111,7 +111,7 @@ func TestTargetDirs(t *testing.T) {
 				"../internal/dirtest/a/d"}},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.desc, func(t *testing.T) {
 			a := assert.New(t)
 			got, err := file.TargetDirs(tt.args.dirPath, tt.args.recursive)
 			a.Equal(tt.wantErr, err != nil)
