@@ -25,3 +25,11 @@ func TestScan(t *testing.T) {
 	}
 	a.ElementsMatch(expected, names)
 }
+
+func TestScanNoFile(t *testing.T) {
+	testutil.ChCurrentDir()
+	a := assert.New(t)
+	path := "../internal/srctest/not_found.go"
+	_, err := file.ScanTests(path)
+	a.Error(err)
+}

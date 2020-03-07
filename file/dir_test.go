@@ -13,20 +13,25 @@ import (
 
 var e = file.Export
 
-func TestRecurseNotFound(t *testing.T) {
+func TestRecurseFailed(t *testing.T) {
 	testutil.ChCurrentDir()
-	a := assert.New(t)
-	dirPath := "../internal/noexists"
-	_, err := file.RecurseDir(dirPath)
-	a.True(os.IsNotExist(err))
-}
-
-func TestRecurseNoDir(t *testing.T) {
-	testutil.ChCurrentDir()
-	a := assert.New(t)
-	dirPath := "../internal/dirtest/a/b/c/dummy"
-	_, err := file.RecurseDir(dirPath)
-	a.Error(err)
+	tests := []struct {
+		desc    string
+		dirPath string
+		exists  bool
+	}{
+		{desc: "not found", dirPath: "../internal/noexists", exists: false},
+		{desc: "not directory", dirPath: "../internal/dirtest/a/b/c/dummy", exists: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.desc, func(t *testing.T) {
+			a := assert.New(t)
+			_, err := file.RecurseDir(tt.dirPath)
+			a.Error(err)
+			_, err = os.Stat(tt.dirPath)
+			a.Equal(tt.exists, err == nil)
+		})
+	}
 }
 
 func TestRecurseSuccess(t *testing.T) {
@@ -48,7 +53,6 @@ func TestRecurseSuccess(t *testing.T) {
 
 func TestContainsStartWithDot(t *testing.T) {
 	testutil.ChCurrentDir()
-	a := assert.New(t)
 	tests := []struct {
 		desc     string
 		name     string
@@ -63,8 +67,55 @@ func TestContainsStartWithDot(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.desc, func(t *testing.T) {
+			a := assert.New(t)
 			actual := e.ContainsStartWithDot(tt.name)
 			a.Equal(tt.expected, actual)
+		})
+	}
+}
+
+func TestTargetDirs(t *testing.T) {
+	testutil.ChCurrentDir()
+	type args struct {
+		dirPath   string
+		recursive bool
+	}
+	tests := []struct {
+		desc    string
+		args    args
+		want    []string
+		wantErr bool
+	}{
+		{desc: "not exists - no recursive",
+			args:    args{dirPath: "../internal/noexists", recursive: false},
+			wantErr: true},
+		{desc: "not exists - recursive",
+			args:    args{dirPath: "../internal/noexists", recursive: true},
+			wantErr: true},
+		{desc: "no directory - no recursive",
+			args:    args{dirPath: "../internal/dirtest/a/b/c/dummy", recursive: false},
+			wantErr: true},
+		{desc: "no directory - recursive",
+			args:    args{dirPath: "../internal/dirtest/a/b/c/dummy", recursive: true},
+			wantErr: true},
+		{desc: "directory - no recursive",
+			args: args{dirPath: "../internal/dirtest", recursive: false},
+			want: []string{"../internal/dirtest"}},
+		{desc: "directory - recursive",
+			args: args{dirPath: "../internal/dirtest", recursive: true},
+			want: []string{
+				"../internal/dirtest",
+				"../internal/dirtest/a",
+				"../internal/dirtest/a/b",
+				"../internal/dirtest/a/b/c",
+				"../internal/dirtest/a/d"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.desc, func(t *testing.T) {
+			a := assert.New(t)
+			got, err := file.TargetDirs(tt.args.dirPath, tt.args.recursive)
+			a.Equal(tt.wantErr, err != nil)
+			a.ElementsMatch(tt.want, got)
 		})
 	}
 }

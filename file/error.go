@@ -4,11 +4,11 @@ import "fmt"
 
 // ReadError はファイルの読み込みに失敗した時のエラー
 type ReadError struct {
-	Name string
+	Path string
 }
 
 func (e ReadError) Error() string {
-	return fmt.Sprint("cannot read file", e.Name)
+	return fmt.Sprint("cannot read file", e.Path)
 }
 
 // NoDirError はパスがディレクトリでない時のエラー

@@ -5,10 +5,12 @@ import (
 	"testing"
 
 	"github.com/meian/gowatch/file"
+	"github.com/meian/gowatch/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewPair(t *testing.T) {
+	testutil.ChCurrentDir()
 	a := assert.New(t)
 	tests := []struct {
 		desc     string
@@ -40,4 +42,18 @@ func TestNewPair(t *testing.T) {
 			a.Equal(tt.enable, actual.TestEnabled())
 		})
 	}
+}
+
+func TestPairString(t *testing.T) {
+	testutil.ChCurrentDir()
+	a := assert.New(t)
+	src := "../internal/pairtest/src.go"
+	pair, err := file.NewPair(src)
+	a.NoError(err)
+	a.Greater(len(pair.Detected), 0, "detected")
+	a.Greater(len(pair.Test), 0, "test")
+	a.NotEqual(pair.Detected, pair.Test)
+	s := pair.String()
+	a.Contains(s, pair.Detected)
+	a.Contains(s, pair.Test)
 }
