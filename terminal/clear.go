@@ -4,7 +4,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/meian/gowatch/util"
+	"github.com/meian/gowatch/runtime"
 )
 
 var (
@@ -12,7 +12,7 @@ var (
 )
 
 func init() {
-	if util.IsWindows {
+	if runtime.IsWindows {
 		clrCmd = exec.Command("cmd", "/c", "cls")
 	} else {
 		clrCmd = exec.Command("clear")

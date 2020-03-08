@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/meian/gowatch/util"
+	"github.com/meian/gowatch/runtime"
 )
 
 // DirPath はソースコードのディレクトリパスを返す
@@ -24,7 +24,7 @@ func DirPath(src string) string {
 }
 
 func pattern() string {
-	if util.IsWindows {
+	if runtime.IsWindows {
 		return `^(\w:|\.{0,2}/)`
 	}
 	return `^\.{0,2}/`

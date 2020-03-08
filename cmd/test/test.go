@@ -7,6 +7,7 @@ import (
 
 	"github.com/meian/gowatch/file"
 	"github.com/meian/gowatch/path"
+	"github.com/meian/gowatch/runtime"
 )
 
 // LoopTest はテストを実行するループ
@@ -42,8 +43,8 @@ func LoopTest(c *Context) {
 				failures = append(failures, pairs...)
 				continue
 			}
-			cmd := newCommand("go", args...)
-			log.Println("run test:", cmd.viewMsg())
+			cmd := runtime.NewCommand("go", args...)
+			log.Println("run test:", cmd)
 			err = cmd.Run()
 			if err != nil {
 				failures = append(failures, pairs...)
