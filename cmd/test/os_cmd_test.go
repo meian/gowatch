@@ -9,19 +9,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var e = test.Export
-
-func TestNewOsCmd(t *testing.T) {
+func TestNewCommand(t *testing.T) {
 	a := assert.New(t)
-	cmd := e.NewCommand("go", "test")
+	cmd := test.NewCommand("go", "test")
 	a.Equal(os.Stdout, cmd.Stdout)
 	a.Equal(os.Stderr, cmd.Stderr)
 }
 
-func TestViewMsg(t *testing.T) {
+func TestCmdString(t *testing.T) {
 	a := assert.New(t)
-	cmd := e.NewCommand("go", "test")
-	msg := e.CmdMsg(cmd)
+	cmd := test.NewCommand("go", "test")
+	msg := cmd.String()
 	path, err := exec.LookPath("go")
 	if err != nil {
 		t.Fatal("not found go executable")
