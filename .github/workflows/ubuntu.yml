@@ -1,8 +1,8 @@
 name: Ubuntu
 on:
   push:
-    branches:
-      - "!doc/*"
+    branches-ignore:
+      - "doc/**"
 jobs:
   test:
     name: Test
