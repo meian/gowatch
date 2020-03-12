@@ -1,18 +1,20 @@
 # gowatch
 
 ![Go](https://github.com/meian/gowatch/workflows/Go/badge.svg)
+[![GoDoc](https://godoc.org/github.com/meian/gowatch?status.svg)](https://godoc.org/github.com/meian/gowatch)
 [![GitHub license](https://img.shields.io/github/license/meian/gowatch?color=orange)](https://github.com/meian/gowatch/blob/master/LICENSE)
 [![codecov](https://codecov.io/gh/meian/gowatch/branch/master/graph/badge.svg)](https://codecov.io/gh/meian/gowatch)
+[![Go Report Card](https://goreportcard.com/badge/github.com/meian/gowatch)](https://goreportcard.com/report/github.com/meian/gowatch)
 
 Watch file change and run test.  
 Current support is only test.
 
 ## Feature
 
-- watch files in specific directory, and run test for **only change target** when detect changes.
-  - when change test source(`foo_test.go`), run test only in this file.
-  - when change no test source(`bar.go`), run test only in companion test file(`bar_test.go`). 
-- watch single directory or recursive.
+-   watch files in specific directory, and run test for **only change target** when detect changes.
+    -   when change test source(`foo_test.go`), run test only in this file.
+    -   when change no test source(`bar.go`), run test only in companion test file(`bar_test.go`).
+-   watch single directory or recursive.
 
 ## Install
 
