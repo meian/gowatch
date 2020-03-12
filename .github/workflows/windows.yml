@@ -1,5 +1,8 @@
 name: Windows
-on: [push]
+on:
+  push:
+    branches:
+      - "!doc/*"
 jobs:
   test:
     name: Test
