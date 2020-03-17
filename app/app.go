@@ -17,7 +17,7 @@ func NewApp() *cli.App {
 		Copyright: "(c) 2020 kitamin",
 		Usage:     "Watch file change and run test",
 		Authors: []*cli.Author{
-			&cli.Author{
+			{
 				Name: "kitamin",
 			},
 		},
