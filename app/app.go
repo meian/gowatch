@@ -21,12 +21,6 @@ func NewApp() *cli.App {
 				Name: "kitamin",
 			},
 		},
-		Flags: []cli.Flag{
-			&cli.BoolFlag{
-				Name:  "verbose",
-				Usage: "run with show verbose",
-			},
-		},
 		HideVersion: true,
 		OnUsageError: func(c *cli.Context, err error, isSub bool) error {
 			fmt.Println(err)
