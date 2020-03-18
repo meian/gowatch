@@ -26,7 +26,7 @@ func TestNewPair(t *testing.T) {
 		{desc: "test file only", detected: "only_test.go", test: "only_test.go", enable: true},
 		{desc: "is directory", detected: "dir.go", test: "dir_test.go", isError: true},
 	}
-	dir := "../internal/pairtest"
+	dir := "../testdata/pairtest"
 	for _, tt := range tests {
 		t.Run(tt.desc, func(t *testing.T) {
 			dt := p.Join(dir, tt.detected)
@@ -47,7 +47,7 @@ func TestNewPair(t *testing.T) {
 func TestPairString(t *testing.T) {
 	testutil.ChCurrentDir()
 	a := assert.New(t)
-	src := "../internal/pairtest/src.go"
+	src := "../testdata/pairtest/src.go"
 	pair, err := file.NewPair(src)
 	a.NoError(err)
 	a.Greater(len(pair.Detected), 0, "detected")

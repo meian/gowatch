@@ -23,7 +23,7 @@ func TestIsFile(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.desc, func(t *testing.T) {
-			fullPath := p.Join("../internal/dirtest", tt.path)
+			fullPath := p.Join("../testdata/dirtest", tt.path)
 			actual := file.IsFile(fullPath)
 			a.Equal(tt.expected, actual)
 		})

@@ -11,7 +11,7 @@ import (
 func TestScan(t *testing.T) {
 	testutil.ChCurrentDir()
 	a := assert.New(t)
-	path := "../internal/srctest/test_for_scan.go"
+	path := "../testdata/srctest/test_for_scan.go"
 	names, err := file.ScanTests(path)
 	if !a.NoError(err) {
 		a.FailNow("cannot scan")
@@ -29,7 +29,7 @@ func TestScan(t *testing.T) {
 func TestScanNoFile(t *testing.T) {
 	testutil.ChCurrentDir()
 	a := assert.New(t)
-	path := "../internal/srctest/not_found.go"
+	path := "../testdata/srctest/not_found.go"
 	_, err := file.ScanTests(path)
 	a.Error(err)
 }
