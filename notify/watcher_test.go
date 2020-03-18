@@ -93,7 +93,7 @@ func newWatcher() *notify.Watcher {
 func testDir(path string) string {
 	cur, _ := os.Getwd()
 	cur = filepath.Dir(cur)
-	return filepath.Join(cur, "internal", "watchtest", path)
+	return filepath.Join(cur, "testdata", "watchtest", path)
 }
 
 type testData struct {

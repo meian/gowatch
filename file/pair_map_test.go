@@ -25,7 +25,7 @@ func TestPairMap(t *testing.T) {
 		{desc: "no test", detected: "no_test_src.go", has: false, count: 4},
 	}
 	m := file.NewPairMap()
-	dir := "../internal/pairtest"
+	dir := "../testdata/pairtest"
 	for _, tt := range tests {
 		t.Run(tt.desc, func(t *testing.T) {
 			a := assert.New(t)

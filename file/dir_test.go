@@ -20,8 +20,8 @@ func TestRecurseFailed(t *testing.T) {
 		dirPath string
 		exists  bool
 	}{
-		{desc: "not found", dirPath: "../internal/noexists", exists: false},
-		{desc: "not directory", dirPath: "../internal/dirtest/a/b/c/dummy", exists: true},
+		{desc: "not found", dirPath: "../testdata/noexists", exists: false},
+		{desc: "not directory", dirPath: "../testdata/dirtest/a/b/c/dummy", exists: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.desc, func(t *testing.T) {
@@ -37,7 +37,7 @@ func TestRecurseFailed(t *testing.T) {
 func TestRecurseSuccess(t *testing.T) {
 	testutil.ChCurrentDir()
 	a := assert.New(t)
-	dirPath := "../internal/dirtest"
+	dirPath := "../testdata/dirtest"
 	dirs, err := file.RecurseDir(dirPath)
 	a.NoError(err)
 	a.GreaterOrEqual(len(dirs), 3)
@@ -87,28 +87,28 @@ func TestTargetDirs(t *testing.T) {
 		wantErr bool
 	}{
 		{desc: "not exists - no recursive",
-			args:    args{dirPath: "../internal/noexists", recursive: false},
+			args:    args{dirPath: "../testdata/noexists", recursive: false},
 			wantErr: true},
 		{desc: "not exists - recursive",
-			args:    args{dirPath: "../internal/noexists", recursive: true},
+			args:    args{dirPath: "../testdata/noexists", recursive: true},
 			wantErr: true},
 		{desc: "no directory - no recursive",
-			args:    args{dirPath: "../internal/dirtest/a/b/c/dummy", recursive: false},
+			args:    args{dirPath: "../testdata/dirtest/a/b/c/dummy", recursive: false},
 			wantErr: true},
 		{desc: "no directory - recursive",
-			args:    args{dirPath: "../internal/dirtest/a/b/c/dummy", recursive: true},
+			args:    args{dirPath: "../testdata/dirtest/a/b/c/dummy", recursive: true},
 			wantErr: true},
 		{desc: "directory - no recursive",
-			args: args{dirPath: "../internal/dirtest", recursive: false},
-			want: []string{"../internal/dirtest"}},
+			args: args{dirPath: "../testdata/dirtest", recursive: false},
+			want: []string{"../testdata/dirtest"}},
 		{desc: "directory - recursive",
-			args: args{dirPath: "../internal/dirtest", recursive: true},
+			args: args{dirPath: "../testdata/dirtest", recursive: true},
 			want: []string{
-				"../internal/dirtest",
-				"../internal/dirtest/a",
-				"../internal/dirtest/a/b",
-				"../internal/dirtest/a/b/c",
-				"../internal/dirtest/a/d"}},
+				"../testdata/dirtest",
+				"../testdata/dirtest/a",
+				"../testdata/dirtest/a/b",
+				"../testdata/dirtest/a/b/c",
+				"../testdata/dirtest/a/d"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.desc, func(t *testing.T) {
