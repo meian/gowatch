@@ -4,6 +4,6 @@ type Exported struct{}
 
 var Export Exported
 
-func (e Exported) ContainsStartWithDot(name string) bool {
-	return containsStartWithDot(name)
+func (e Exported) TargetDir(name string) bool {
+	return targetDir(name)
 }

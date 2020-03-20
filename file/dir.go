@@ -1,11 +1,10 @@
 package file
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/meian/gowatch/path"
 )
 
 // TargetDirs は監視対象のディレクトリ一覧を返す、recursiveを指定する場合はサブディレクトリを含む
@@ -28,10 +27,8 @@ func RecurseDir(dirPath string) ([]string, error) {
 	if !st.IsDir() {
 		return nil, NoDirError{Path: dirPath}
 	}
-	bucket := &dirBucket{paths: make([]string, 0)}
-	err = filepath.Walk(dirPath, bucket.walk)
-	if err != nil {
-		// 再帰関数内はエラーを返さないけどそもそもディレクトリが読めなかった対策
+	bucket := &dirBucket{paths: []string{}}
+	if err := bucket.collect(dirPath); err != nil {
 		return nil, err
 	}
 	return bucket.paths, nil
@@ -42,26 +39,35 @@ type dirBucket struct {
 	paths []string
 }
 
-// walk内で見つかったディレクトリパスを格納する
-func (bucket *dirBucket) walk(name string, file os.FileInfo, err error) error {
-	name = path.UnixPath(name)
-	if containsStartWithDot(name) {
-		return nil
+// ディレクトリパスを再帰的に収集する
+func (bucket *dirBucket) collect(dirPath string) error {
+	bucket.paths = append(bucket.paths, dirPath)
+	fs, err := ioutil.ReadDir(dirPath)
+	if err != nil {
+		return err
 	}
-	if file.IsDir() {
-		bucket.paths = append(bucket.paths, name)
+	for _, f := range fs {
+		if !f.IsDir() {
+			continue
+		}
+		name := f.Name()
+		if !targetDir(name) {
+			continue
+		}
+		bucket.collect(filepath.ToSlash(filepath.Join(dirPath, name)))
 	}
 	return nil
 }
 
-func containsStartWithDot(name string) bool {
-	for _, p := range strings.Split(name, "/") {
-		if p == "." || p == ".." {
-			continue
-		}
-		if strings.HasPrefix(p, ".") {
-			return true
-		}
+func targetDir(name string) bool {
+	switch {
+	case name == ".":
+		return true
+	case name == "..":
+		return true
+	case strings.HasPrefix(name, "."):
+		return false
+	default:
+		return true
 	}
-	return false
 }
