@@ -1,16 +1,31 @@
 package file
 
 import (
+	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/meian/gowatch/path"
 )
+
+type fileSystem interface {
+	Stat(name string) (os.FileInfo, error)
+	ReadDir(dirname string) ([]os.FileInfo, error)
+}
+type fsImpl struct{}
+
+var fs fileSystem = fsImpl{}
+
+func (f fsImpl) Stat(name string) (os.FileInfo, error) {
+	return os.Stat(name)
+}
+func (f fsImpl) ReadDir(dirname string) ([]os.FileInfo, error) {
+	return ioutil.ReadDir(dirname)
+}
 
 // TargetDirs は監視対象のディレクトリ一覧を返す、recursiveを指定する場合はサブディレクトリを含む
 func TargetDirs(dirPath string, recursive bool) ([]string, error) {
-	if dir, err := os.Stat(dirPath); err != nil || !dir.IsDir() {
+	if dir, err := fs.Stat(dirPath); err != nil || !dir.IsDir() {
 		return nil, NoDirError{Path: dirPath}
 	}
 	if recursive {
@@ -21,19 +36,15 @@ func TargetDirs(dirPath string, recursive bool) ([]string, error) {
 
 // RecurseDir は自身とサブディレクトリのパスリストを返す
 func RecurseDir(dirPath string) ([]string, error) {
-	st, err := os.Stat(dirPath)
+	st, err := fs.Stat(dirPath)
 	if err != nil {
 		return nil, err
 	}
 	if !st.IsDir() {
 		return nil, NoDirError{Path: dirPath}
 	}
-	bucket := &dirBucket{paths: make([]string, 0)}
-	err = filepath.Walk(dirPath, bucket.walk)
-	if err != nil {
-		// 再帰関数内はエラーを返さないけどそもそもディレクトリが読めなかった対策
-		return nil, err
-	}
+	bucket := &dirBucket{paths: []string{}}
+	bucket.collect(dirPath)
 	return bucket.paths, nil
 }
 
@@ -42,26 +53,36 @@ type dirBucket struct {
 	paths []string
 }
 
-// walk内で見つかったディレクトリパスを格納する
-func (bucket *dirBucket) walk(name string, file os.FileInfo, err error) error {
-	name = path.UnixPath(name)
-	if containsStartWithDot(name) {
-		return nil
+// ディレクトリパスを再帰的に収集する
+func (bucket *dirBucket) collect(dirPath string) {
+	bucket.paths = append(bucket.paths, dirPath)
+	fs, err := fs.ReadDir(dirPath)
+	if err != nil {
+		log.Println("[WARN]cannot read dir: ", dirPath)
+		log.Println(err)
+		return
 	}
-	if file.IsDir() {
-		bucket.paths = append(bucket.paths, name)
-	}
-	return nil
-}
-
-func containsStartWithDot(name string) bool {
-	for _, p := range strings.Split(name, "/") {
-		if p == "." || p == ".." {
+	for _, f := range fs {
+		if !f.IsDir() {
 			continue
 		}
-		if strings.HasPrefix(p, ".") {
-			return true
+		name := f.Name()
+		if !targetDir(name) {
+			continue
 		}
+		bucket.collect(filepath.ToSlash(filepath.Join(dirPath, name)))
 	}
-	return false
+}
+
+func targetDir(name string) bool {
+	switch {
+	case name == ".":
+		return true
+	case name == "..":
+		return true
+	case strings.HasPrefix(name, "."):
+		return false
+	default:
+		return true
+	}
 }

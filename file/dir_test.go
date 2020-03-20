@@ -51,29 +51,6 @@ func TestRecurseSuccess(t *testing.T) {
 	}
 }
 
-func TestContainsStartWithDot(t *testing.T) {
-	testutil.ChCurrentDir()
-	tests := []struct {
-		desc     string
-		name     string
-		expected bool
-	}{
-		{desc: "no dot path", name: "foo/bar", expected: false},
-		{desc: "last path is dot started", name: "foo/.bar", expected: true},
-		{desc: "first path is dot started", name: ".foo/bar", expected: true},
-		{desc: "middle path is dot started", name: "foo/.bar/sub", expected: true},
-		{desc: "start path is curret", name: "./foo/bar", expected: false},
-		{desc: "start path is parent", name: "../foo/bar", expected: false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.desc, func(t *testing.T) {
-			a := assert.New(t)
-			actual := e.ContainsStartWithDot(tt.name)
-			a.Equal(tt.expected, actual)
-		})
-	}
-}
-
 func TestTargetDirs(t *testing.T) {
 	testutil.ChCurrentDir()
 	type args struct {
@@ -115,7 +92,82 @@ func TestTargetDirs(t *testing.T) {
 			a := assert.New(t)
 			got, err := file.TargetDirs(tt.args.dirPath, tt.args.recursive)
 			a.Equal(tt.wantErr, err != nil)
-			a.ElementsMatch(tt.want, got)
+			a.ElementsMatch(tt.want, got, got)
+		})
+	}
+}
+
+func TestTargetDirsStatErr(t *testing.T) {
+	defer e.FSStatErr()()
+	testutil.ChCurrentDir()
+	type args struct {
+		dirPath   string
+		recursive bool
+	}
+	tests := []struct {
+		desc string
+		args args
+	}{
+		{desc: "directory - no recursive",
+			args: args{dirPath: "../testdata/dirtest", recursive: false}},
+		{desc: "directory - recursive",
+			args: args{dirPath: "../testdata/dirtest", recursive: true}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.desc, func(t *testing.T) {
+			a := assert.New(t)
+			_, err := file.TargetDirs(tt.args.dirPath, tt.args.recursive)
+			a.Error(err)
+		})
+	}
+}
+
+func TestTargetDirsReadDirErr(t *testing.T) {
+	defer e.FSReadDirErr()()
+	testutil.ChCurrentDir()
+	type args struct {
+		dirPath   string
+		recursive bool
+	}
+	tests := []struct {
+		desc    string
+		args    args
+		wantErr bool
+	}{
+		{desc: "directory - no recursive",
+			args: args{dirPath: "../testdata/dirtest", recursive: false}},
+		{desc: "directory - recursive",
+			args: args{dirPath: "../testdata/dirtest", recursive: true}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.desc, func(t *testing.T) {
+			a := assert.New(t)
+			got, err := file.TargetDirs(tt.args.dirPath, tt.args.recursive)
+			a.NoError(err)
+			a.NotNil(got)
+		})
+	}
+}
+
+func TestTargetDirPrivate(t *testing.T) {
+	testutil.ChCurrentDir()
+	tests := []struct {
+		desc     string
+		name     string
+		expected bool
+	}{
+		{desc: "no dot name", name: "foo", expected: true},
+		{desc: "current dir", name: ".", expected: true},
+		{desc: "parent dir", name: "..", expected: true},
+		{desc: "start with dot name", name: ".foo", expected: false},
+		{desc: "contains dot name", name: "foo.bar", expected: true},
+		{desc: "end with dot name", name: "foo.", expected: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.desc, func(t *testing.T) {
+			a := assert.New(t)
+			actual := e.TargetDir(tt.name)
+			a.Equal(tt.expected, actual)
 		})
 	}
 }
