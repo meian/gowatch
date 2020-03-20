@@ -2,14 +2,30 @@ package file
 
 import (
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
+type fileSystem interface {
+	Stat(name string) (os.FileInfo, error)
+	ReadDir(dirname string) ([]os.FileInfo, error)
+}
+type fsImpl struct{}
+
+var fs fileSystem = fsImpl{}
+
+func (f fsImpl) Stat(name string) (os.FileInfo, error) {
+	return os.Stat(name)
+}
+func (f fsImpl) ReadDir(dirname string) ([]os.FileInfo, error) {
+	return ioutil.ReadDir(dirname)
+}
+
 // TargetDirs は監視対象のディレクトリ一覧を返す、recursiveを指定する場合はサブディレクトリを含む
 func TargetDirs(dirPath string, recursive bool) ([]string, error) {
-	if dir, err := os.Stat(dirPath); err != nil || !dir.IsDir() {
+	if dir, err := fs.Stat(dirPath); err != nil || !dir.IsDir() {
 		return nil, NoDirError{Path: dirPath}
 	}
 	if recursive {
@@ -20,7 +36,7 @@ func TargetDirs(dirPath string, recursive bool) ([]string, error) {
 
 // RecurseDir は自身とサブディレクトリのパスリストを返す
 func RecurseDir(dirPath string) ([]string, error) {
-	st, err := os.Stat(dirPath)
+	st, err := fs.Stat(dirPath)
 	if err != nil {
 		return nil, err
 	}
@@ -28,9 +44,7 @@ func RecurseDir(dirPath string) ([]string, error) {
 		return nil, NoDirError{Path: dirPath}
 	}
 	bucket := &dirBucket{paths: []string{}}
-	if err := bucket.collect(dirPath); err != nil {
-		return nil, err
-	}
+	bucket.collect(dirPath)
 	return bucket.paths, nil
 }
 
@@ -40,11 +54,13 @@ type dirBucket struct {
 }
 
 // ディレクトリパスを再帰的に収集する
-func (bucket *dirBucket) collect(dirPath string) error {
+func (bucket *dirBucket) collect(dirPath string) {
 	bucket.paths = append(bucket.paths, dirPath)
-	fs, err := ioutil.ReadDir(dirPath)
+	fs, err := fs.ReadDir(dirPath)
 	if err != nil {
-		return err
+		log.Println("[WARN]cannot read dir: ", dirPath)
+		log.Println(err)
+		return
 	}
 	for _, f := range fs {
 		if !f.IsDir() {
@@ -56,7 +72,6 @@ func (bucket *dirBucket) collect(dirPath string) error {
 		}
 		bucket.collect(filepath.ToSlash(filepath.Join(dirPath, name)))
 	}
-	return nil
 }
 
 func targetDir(name string) bool {
