@@ -16,14 +16,10 @@ var gen watcherGen = watcherGenImpl{}
 
 // Watcher はfsnotify.Watcherの拡張型
 type Watcher struct {
-	// Events はファイルイベントを受け取るチャンネルを返す
-	Events chan fsnotify.Event
-	// Events はファイルイベントを受け取るチャンネルを返す
-	Errors  chan error
-	watcher *fsnotify.Watcher
-	dirs    map[string]bool
-	add     func(name string) error
-	remove  func(name string) error
+	*fsnotify.Watcher
+	dirs   map[string]bool
+	add    func(name string) error
+	remove func(name string) error
 }
 
 // NewWatcher はWatcherインスタンスを作成する
@@ -33,9 +29,7 @@ func NewWatcher() (*Watcher, error) {
 		return nil, err
 	}
 	w := &Watcher{
-		Events:  watcher.Events,
-		Errors:  watcher.Errors,
-		watcher: watcher,
+		Watcher: watcher,
 		dirs:    map[string]bool{},
 		add:     watcher.Add,
 		remove:  watcher.Remove,
@@ -73,7 +67,7 @@ func (w *Watcher) Remove(name string) error {
 
 // Close は監視処理を閉じる
 func (w *Watcher) Close() error {
-	err := w.watcher.Close()
+	err := w.Watcher.Close()
 	w.dirs = map[string]bool{}
 	return err
 }

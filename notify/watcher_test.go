@@ -12,13 +12,11 @@ import (
 
 var e = notify.Export
 
-func TestNewWatcherTest(t *testing.T) {
+func TestNewWatcher(t *testing.T) {
 	a := assert.New(t)
 	w, err := notify.NewWatcher()
 	a.NoError(err)
 	a.NotNil(w)
-	a.NotNil(w.Events)
-	a.NotNil(w.Errors)
 }
 
 func TestWatcherAdd(t *testing.T) {
