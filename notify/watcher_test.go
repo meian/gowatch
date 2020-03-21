@@ -19,16 +19,26 @@ func TestNewWatcher(t *testing.T) {
 	a.NotNil(w)
 }
 
+func TestNewWatcherError(t *testing.T) {
+	a := assert.New(t)
+	defer e.NewWatcherError()()
+	w, err := notify.NewWatcher()
+	a.Error(err)
+	a.Nil(w)
+}
+
 func TestWatcherAdd(t *testing.T) {
 	testutil.ChCurrentDir()
 	tests := newTestData()
 	for _, tt := range tests {
-		w := newWatcher()
-		defer w.Close()
 		t.Run(tt.desc, func(t *testing.T) {
 			a := assert.New(t)
+			w, err := notify.NewWatcher()
+			a.NoError(err)
+			setupAlreadyAdded(w)
+			defer w.Close()
 			p := testDir(tt.path)
-			err := w.Add(p)
+			err = w.Add(p)
 			if tt.canAdd {
 				a.NoError(err, p)
 				a.True(w.Watched(p))
@@ -42,33 +52,56 @@ func TestWatcherAdd(t *testing.T) {
 	}
 }
 
-func TestWatcherRemove(t *testing.T) {
+func TestWatcherAddClosed(t *testing.T) {
 	testutil.ChCurrentDir()
 	tests := newTestData()
 	for _, tt := range tests {
-		w := newWatcher()
-		defer w.Close()
 		t.Run(tt.desc, func(t *testing.T) {
 			a := assert.New(t)
-			p := testDir(tt.path)
-			err := w.Remove(p)
+			w, err := notify.NewWatcher()
 			a.NoError(err)
+			setupAlreadyAdded(w)
+			w.Close()
+			p := testDir(tt.path)
+			err = w.Add(p)
+			a.Error(err)
 			a.False(w.Watched(p))
 		})
 	}
 }
 
-func TestWatcherAddClosed(t *testing.T) {
+func TestWatcherAddError(t *testing.T) {
 	testutil.ChCurrentDir()
 	tests := newTestData()
 	for _, tt := range tests {
-		w := newWatcher()
-		w.Close()
 		t.Run(tt.desc, func(t *testing.T) {
 			a := assert.New(t)
+			w, err := notify.NewWatcher()
+			a.NoError(err)
+			defer w.Close()
+			e.MockAddError(w)
 			p := testDir(tt.path)
-			err := w.Add(p)
+			err = w.Add(p)
 			a.Error(err)
+			a.False(w.Watched(p))
+		})
+	}
+}
+
+func TestWatcherRemove(t *testing.T) {
+	// 監視削除は監視対象でも非対象でもエラーにならない
+	testutil.ChCurrentDir()
+	tests := newTestData()
+	for _, tt := range tests {
+		t.Run(tt.desc, func(t *testing.T) {
+			a := assert.New(t)
+			w, err := notify.NewWatcher()
+			a.NoError(err)
+			setupAlreadyAdded(w)
+			defer w.Close()
+			p := testDir(tt.path)
+			err = w.Remove(p)
+			a.NoError(err)
 			a.False(w.Watched(p))
 		})
 	}
@@ -79,38 +112,15 @@ func TestWatcherRemoveClosed(t *testing.T) {
 	testutil.ChCurrentDir()
 	tests := newTestData()
 	for _, tt := range tests {
-		w := newWatcher()
-		w.Close()
 		t.Run(tt.desc, func(t *testing.T) {
 			a := assert.New(t)
-			p := testDir(tt.path)
-			err := w.Remove(p)
+			w, err := notify.NewWatcher()
 			a.NoError(err)
-			a.False(w.Watched(p))
-		})
-	}
-}
-
-func TestNewWatcherError(t *testing.T) {
-	// あえてテストしなくても良さそうだけどカバレッジ用
-	a := assert.New(t)
-	defer e.WatcherGenNewError()()
-	w, err := notify.NewWatcher()
-	a.Error(err)
-	a.Nil(w)
-}
-
-func TestWacherAddError(t *testing.T) {
-	testutil.ChCurrentDir()
-	tests := newTestData()
-	for _, tt := range tests {
-		t.Run(tt.desc, func(t *testing.T) {
-			w := newWatcherNoAdded()
-			e.MockAddError(w)
-			a := assert.New(t)
+			setupAlreadyAdded(w)
+			w.Close()
 			p := testDir(tt.path)
-			err := w.Add(p)
-			a.Error(err)
+			err = w.Remove(p)
+			a.NoError(err)
 			a.False(w.Watched(p))
 		})
 	}
@@ -122,33 +132,24 @@ func TestWatcherRemoveError(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.desc, func(t *testing.T) {
 			if !tt.canAdd {
-				// 監視が追加されないケースではエラーケースのテストはできない
+				// 監視が設定されないケースではエラーケースのテストはできない
 				t.SkipNow()
 			}
-			w := newWatcherNoAdded()
-			e.MockRemoveError(w)
 			a := assert.New(t)
+			w, err := notify.NewWatcher()
+			a.NoError(err)
+			defer w.Close()
+			e.MockRemoveError(w)
 			p := testDir(tt.path)
 			w.Add(p)
-			err := w.Remove(p)
+			err = w.Remove(p)
 			a.Error(err)
 			a.True(w.Watched(p))
 		})
 	}
 }
 
-func newWatcher() *notify.Watcher {
-	w, _ := notify.NewWatcher()
-	addAlreadyAdded(w)
-	return w
-}
-
-func newWatcherNoAdded() *notify.Watcher {
-	w, _ := notify.NewWatcher()
-	return w
-}
-
-func addAlreadyAdded(w *notify.Watcher) {
+func setupAlreadyAdded(w *notify.Watcher) {
 	w.Add(testDir("already_added"))
 }
 
