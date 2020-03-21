@@ -160,10 +160,9 @@ func testDir(path string) string {
 }
 
 type testData struct {
-	desc      string
-	path      string
-	canAdd    bool
-	canRemove bool
+	desc   string
+	path   string
+	canAdd bool
 }
 
 func newTestData() []testData {
