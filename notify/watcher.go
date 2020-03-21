@@ -2,62 +2,68 @@ package notify
 
 import "github.com/fsnotify/fsnotify"
 
+var newNativeWatcher = fsnotify.NewWatcher
+
 // Watcher はfsnotify.Watcherの拡張型
 type Watcher struct {
 	*fsnotify.Watcher
-	dirs map[string]bool
+	dirs   map[string]bool
+	add    func(name string) error
+	remove func(name string) error
 }
 
 // NewWatcher はWatcherインスタンスを作成する
 func NewWatcher() (*Watcher, error) {
-	inWatcher, err := fsnotify.NewWatcher()
+	watcher, err := newNativeWatcher()
 	if err != nil {
 		return nil, err
 	}
 	w := &Watcher{
-		Watcher: inWatcher,
+		Watcher: watcher,
 		dirs:    map[string]bool{},
+		add:     watcher.Add,
+		remove:  watcher.Remove,
 	}
 	return w, nil
 }
 
-// Add はディレクトリ監視を追加する、すでに追加されている場合は処理しない
-func (w *Watcher) Add(dir string) error {
-	if _, ok := w.dirs[dir]; ok {
+// Add はディレクトリ監視を追加する
+func (w *Watcher) Add(name string) error {
+	if _, ok := w.dirs[name]; ok {
 		// already added
 		return nil
 	}
-	err := w.Watcher.Add(dir)
+	err := w.add(name)
 	if err != nil {
 		return err
 	}
-	w.dirs[dir] = true
+	w.dirs[name] = true
 	return nil
 }
 
-// Remove はディレクトリ監視を除外する、追加されていない場合は何もしない
-func (w *Watcher) Remove(dir string) error {
-	if _, ok := w.dirs[dir]; !ok {
+// Remove はディレクトリ監視を除外する
+func (w *Watcher) Remove(name string) error {
+	if _, ok := w.dirs[name]; !ok {
 		// not exists
 		return nil
 	}
-	err := w.Watcher.Remove(dir)
+	err := w.remove(name)
 	if err != nil {
 		return err
 	}
-	delete(w.dirs, dir)
+	delete(w.dirs, name)
 	return nil
 }
 
-// Watched はディレクトリが監視中のものであるかを返す
-func (w *Watcher) Watched(dir string) bool {
-	_, ok := w.dirs[dir]
-	return ok
-}
-
-// Close は監視処理を停止して管理情報をクリアする
+// Close は監視処理を閉じる
 func (w *Watcher) Close() error {
 	err := w.Watcher.Close()
 	w.dirs = map[string]bool{}
 	return err
+}
+
+// Watched はディレクトリが監視中のものであるかを返す
+func (w *Watcher) Watched(name string) bool {
+	_, ok := w.dirs[name]
+	return ok
 }

@@ -10,16 +10,35 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var e = notify.Export
+
+func TestNewWatcher(t *testing.T) {
+	a := assert.New(t)
+	w, err := notify.NewWatcher()
+	a.NoError(err)
+	a.NotNil(w)
+}
+
+func TestNewWatcherError(t *testing.T) {
+	a := assert.New(t)
+	defer e.MockNewWatcherError()()
+	w, err := notify.NewWatcher()
+	a.Error(err)
+	a.Nil(w)
+}
+
 func TestWatcherAdd(t *testing.T) {
 	testutil.ChCurrentDir()
 	tests := newTestData()
 	for _, tt := range tests {
-		w := newWatcher()
-		defer w.Close()
 		t.Run(tt.desc, func(t *testing.T) {
 			a := assert.New(t)
+			w, err := notify.NewWatcher()
+			a.NoError(err)
+			setupAlreadyAdded(w)
+			defer w.Close()
 			p := testDir(tt.path)
-			err := w.Add(p)
+			err = w.Add(p)
 			if tt.canAdd {
 				a.NoError(err, p)
 				a.True(w.Watched(p))
@@ -33,61 +52,105 @@ func TestWatcherAdd(t *testing.T) {
 	}
 }
 
-func TestWatcherRemove(t *testing.T) {
-	testutil.ChCurrentDir()
-	tests := newTestData()
-	for _, tt := range tests {
-		w := newWatcher()
-		defer w.Close()
-		t.Run(tt.desc, func(t *testing.T) {
-			a := assert.New(t)
-			p := testDir(tt.path)
-			err := w.Remove(p)
-			a.NoError(err)
-			a.False(w.Watched(p))
-		})
-	}
-}
-
 func TestWatcherAddClosed(t *testing.T) {
 	testutil.ChCurrentDir()
 	tests := newTestData()
 	for _, tt := range tests {
-		w := newWatcher()
-		w.Close()
 		t.Run(tt.desc, func(t *testing.T) {
 			a := assert.New(t)
+			w, err := notify.NewWatcher()
+			a.NoError(err)
+			setupAlreadyAdded(w)
+			w.Close()
 			p := testDir(tt.path)
-			err := w.Add(p)
+			err = w.Add(p)
 			a.Error(err)
 			a.False(w.Watched(p))
 		})
 	}
 }
 
-func TestWatcherRemoveClosed(t *testing.T) {
+func TestWatcherAddError(t *testing.T) {
 	testutil.ChCurrentDir()
 	tests := newTestData()
 	for _, tt := range tests {
-		w := newWatcher()
-		w.Close()
 		t.Run(tt.desc, func(t *testing.T) {
 			a := assert.New(t)
+			w, err := notify.NewWatcher()
+			a.NoError(err)
+			defer w.Close()
+			e.MockAddError(w)
 			p := testDir(tt.path)
-			err := w.Remove(p)
+			err = w.Add(p)
+			a.Error(err)
+			a.False(w.Watched(p))
+		})
+	}
+}
+
+func TestWatcherRemove(t *testing.T) {
+	// 監視削除は監視対象でも非対象でもエラーにならない
+	testutil.ChCurrentDir()
+	tests := newTestData()
+	for _, tt := range tests {
+		t.Run(tt.desc, func(t *testing.T) {
+			a := assert.New(t)
+			w, err := notify.NewWatcher()
+			a.NoError(err)
+			setupAlreadyAdded(w)
+			defer w.Close()
+			p := testDir(tt.path)
+			err = w.Remove(p)
 			a.NoError(err)
 			a.False(w.Watched(p))
 		})
 	}
 }
 
-func newWatcher() *notify.Watcher {
-	w, err := notify.NewWatcher()
-	if err != nil {
-		panic(err)
+func TestWatcherRemoveClosed(t *testing.T) {
+	// 監視削除はClose後もエラーにならない
+	testutil.ChCurrentDir()
+	tests := newTestData()
+	for _, tt := range tests {
+		t.Run(tt.desc, func(t *testing.T) {
+			a := assert.New(t)
+			w, err := notify.NewWatcher()
+			a.NoError(err)
+			setupAlreadyAdded(w)
+			w.Close()
+			p := testDir(tt.path)
+			err = w.Remove(p)
+			a.NoError(err)
+			a.False(w.Watched(p))
+		})
 	}
+}
+
+func TestWatcherRemoveError(t *testing.T) {
+	testutil.ChCurrentDir()
+	tests := newTestData()
+	for _, tt := range tests {
+		t.Run(tt.desc, func(t *testing.T) {
+			if !tt.canAdd {
+				// 監視が設定されないケースではエラーケースのテストはできない
+				t.SkipNow()
+			}
+			a := assert.New(t)
+			w, err := notify.NewWatcher()
+			a.NoError(err)
+			defer w.Close()
+			e.MockRemoveError(w)
+			p := testDir(tt.path)
+			w.Add(p)
+			err = w.Remove(p)
+			a.Error(err)
+			a.True(w.Watched(p))
+		})
+	}
+}
+
+func setupAlreadyAdded(w *notify.Watcher) {
 	w.Add(testDir("already_added"))
-	return w
 }
 
 func testDir(path string) string {
