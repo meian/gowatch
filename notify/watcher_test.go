@@ -12,6 +12,15 @@ import (
 
 var e = notify.Export
 
+func TestNewWatcherTest(t *testing.T) {
+	a := assert.New(t)
+	w, err := notify.NewWatcher()
+	a.NoError(err)
+	a.NotNil(w)
+	a.NotNil(w.Events)
+	a.NotNil(w.Errors)
+}
+
 func TestWatcherAdd(t *testing.T) {
 	testutil.ChCurrentDir()
 	tests := newTestData()
@@ -84,14 +93,6 @@ func TestWatcherRemoveClosed(t *testing.T) {
 	}
 }
 
-func TestWatcherChan(t *testing.T) {
-	// カバレッジ用
-	a := assert.New(t)
-	w := newWatcher()
-	a.NotNil(w.Events())
-	a.NotNil(w.Errors())
-}
-
 func TestNewWatcherError(t *testing.T) {
 	// あえてテストしなくても良さそうだけどカバレッジ用
 	a := assert.New(t)
@@ -102,12 +103,12 @@ func TestNewWatcherError(t *testing.T) {
 }
 
 func TestWacherAddError(t *testing.T) {
-	defer e.WatcherGenAddError()()
 	testutil.ChCurrentDir()
 	tests := newTestData()
 	for _, tt := range tests {
-		w := newWatcher()
 		t.Run(tt.desc, func(t *testing.T) {
+			w := newWatcherNoAdded()
+			e.MockAddError(w)
 			a := assert.New(t)
 			p := testDir(tt.path)
 			err := w.Add(p)
@@ -118,17 +119,16 @@ func TestWacherAddError(t *testing.T) {
 }
 
 func TestWatcherRemoveError(t *testing.T) {
-	defer e.WatcherGenRemoveError()()
 	testutil.ChCurrentDir()
 	tests := newTestData()
 	for _, tt := range tests {
-		w := newWatcher()
-		defer w.Close()
 		t.Run(tt.desc, func(t *testing.T) {
 			if !tt.canAdd {
 				// 監視が追加されないケースではエラーケースのテストはできない
 				t.SkipNow()
 			}
+			w := newWatcherNoAdded()
+			e.MockRemoveError(w)
 			a := assert.New(t)
 			p := testDir(tt.path)
 			w.Add(p)
@@ -139,13 +139,19 @@ func TestWatcherRemoveError(t *testing.T) {
 	}
 }
 
-func newWatcher() notify.Watcher {
-	w, err := notify.NewWatcher()
-	if err != nil {
-		panic(err)
-	}
-	w.Add(testDir("already_added"))
+func newWatcher() *notify.Watcher {
+	w, _ := notify.NewWatcher()
+	addAlreadyAdded(w)
 	return w
+}
+
+func newWatcherNoAdded() *notify.Watcher {
+	w, _ := notify.NewWatcher()
+	return w
+}
+
+func addAlreadyAdded(w *notify.Watcher) {
+	w.Add(testDir("already_added"))
 }
 
 func testDir(path string) string {

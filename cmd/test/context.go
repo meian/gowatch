@@ -17,7 +17,7 @@ const (
 // Context はテスト実行時の情報を保持する
 type Context struct {
 	Config      *Config
-	Watcher     notify.Watcher
+	Watcher     *notify.Watcher
 	Directories []string
 	Changed     *file.PairMap
 	State       int
