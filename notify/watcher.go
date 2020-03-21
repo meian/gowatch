@@ -2,17 +2,7 @@ package notify
 
 import "github.com/fsnotify/fsnotify"
 
-// 内部ウォッチャーを生成するインターフェイス
-type watcherGen interface {
-	newWatcher() (*fsnotify.Watcher, error)
-}
-type watcherGenImpl struct{}
-
-func (gen watcherGenImpl) newWatcher() (*fsnotify.Watcher, error) {
-	return fsnotify.NewWatcher()
-}
-
-var gen watcherGen = watcherGenImpl{}
+var newNativeWatcher = fsnotify.NewWatcher
 
 // Watcher はfsnotify.Watcherの拡張型
 type Watcher struct {
@@ -24,7 +14,7 @@ type Watcher struct {
 
 // NewWatcher はWatcherインスタンスを作成する
 func NewWatcher() (*Watcher, error) {
-	watcher, err := gen.newWatcher()
+	watcher, err := newNativeWatcher()
 	if err != nil {
 		return nil, err
 	}

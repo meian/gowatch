@@ -11,18 +11,14 @@ type Exported struct{}
 
 var Export Exported
 
-type watcherGenNewError struct {
-	watcherGenImpl
-}
-
-func (gen watcherGenNewError) newWatcher() (*fsnotify.Watcher, error) {
+func newWatcherError() (*fsnotify.Watcher, error) {
 	return nil, errors.New("new watcher error")
 }
-func (e Exported) WatcherGenNewError() func() {
-	tmp := gen
-	gen = watcherGenNewError{}
+func (e Exported) NewWatcherError() func() {
+	tmp := newNativeWatcher
+	newNativeWatcher = newWatcherError
 	return func() {
-		gen = tmp
+		newNativeWatcher = tmp
 	}
 }
 
