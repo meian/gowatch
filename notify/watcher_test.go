@@ -10,6 +10,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var e = notify.Export
+
 func TestWatcherAdd(t *testing.T) {
 	testutil.ChCurrentDir()
 	tests := newTestData()
@@ -66,6 +68,7 @@ func TestWatcherAddClosed(t *testing.T) {
 }
 
 func TestWatcherRemoveClosed(t *testing.T) {
+	// 監視削除はClose後もエラーにならない
 	testutil.ChCurrentDir()
 	tests := newTestData()
 	for _, tt := range tests {
@@ -81,7 +84,62 @@ func TestWatcherRemoveClosed(t *testing.T) {
 	}
 }
 
-func newWatcher() *notify.Watcher {
+func TestWatcherChan(t *testing.T) {
+	// カバレッジ用
+	a := assert.New(t)
+	w := newWatcher()
+	a.NotNil(w.Events())
+	a.NotNil(w.Errors())
+}
+
+func TestNewWatcherError(t *testing.T) {
+	// あえてテストしなくても良さそうだけどカバレッジ用
+	a := assert.New(t)
+	defer e.WatcherGenNewError()()
+	w, err := notify.NewWatcher()
+	a.Error(err)
+	a.Nil(w)
+}
+
+func TestWacherAddError(t *testing.T) {
+	defer e.WatcherGenAddError()()
+	testutil.ChCurrentDir()
+	tests := newTestData()
+	for _, tt := range tests {
+		w := newWatcher()
+		t.Run(tt.desc, func(t *testing.T) {
+			a := assert.New(t)
+			p := testDir(tt.path)
+			err := w.Add(p)
+			a.Error(err)
+			a.False(w.Watched(p))
+		})
+	}
+}
+
+func TestWatcherRemoveError(t *testing.T) {
+	defer e.WatcherGenRemoveError()()
+	testutil.ChCurrentDir()
+	tests := newTestData()
+	for _, tt := range tests {
+		w := newWatcher()
+		defer w.Close()
+		t.Run(tt.desc, func(t *testing.T) {
+			if !tt.canAdd {
+				// 監視が追加されないケースではエラーケースのテストはできない
+				t.SkipNow()
+			}
+			a := assert.New(t)
+			p := testDir(tt.path)
+			w.Add(p)
+			err := w.Remove(p)
+			a.Error(err)
+			a.True(w.Watched(p))
+		})
+	}
+}
+
+func newWatcher() notify.Watcher {
 	w, err := notify.NewWatcher()
 	if err != nil {
 		panic(err)

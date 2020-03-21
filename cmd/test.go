@@ -59,7 +59,7 @@ func testAction(c *cli.Context) error {
 	return nil
 }
 
-func newWatcher(c *test.Context) (*notify.Watcher, error) {
+func newWatcher(c *test.Context) (notify.Watcher, error) {
 	watcher, err := notify.NewWatcher()
 	if err != nil {
 		return nil, err

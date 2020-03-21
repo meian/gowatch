@@ -13,7 +13,7 @@ import (
 func LoopFSEvent(c *Context) {
 	for {
 		select {
-		case event, ok := <-c.Watcher.Events:
+		case event, ok := <-c.Watcher.Events():
 			if !ok {
 				c.Done <- errors.New("cannot get fs event")
 				return
@@ -26,7 +26,7 @@ func LoopFSEvent(c *Context) {
 			case opMatch(event, fsnotify.Remove):
 				onRemove(c, event)
 			}
-		case err, ok := <-c.Watcher.Errors:
+		case err, ok := <-c.Watcher.Errors():
 			if !ok {
 				err = errors.New("cannot get fs error")
 			}
