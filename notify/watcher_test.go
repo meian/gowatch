@@ -21,7 +21,7 @@ func TestNewWatcher(t *testing.T) {
 
 func TestNewWatcherError(t *testing.T) {
 	a := assert.New(t)
-	defer e.NewWatcherError()()
+	defer e.MockNewWatcherError()()
 	w, err := notify.NewWatcher()
 	a.Error(err)
 	a.Nil(w)

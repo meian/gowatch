@@ -14,7 +14,7 @@ var Export Exported
 func newWatcherError() (*fsnotify.Watcher, error) {
 	return nil, errors.New("new watcher error")
 }
-func (e Exported) NewWatcherError() func() {
+func (e Exported) MockNewWatcherError() func() {
 	tmp := newNativeWatcher
 	newNativeWatcher = newWatcherError
 	return func() {
