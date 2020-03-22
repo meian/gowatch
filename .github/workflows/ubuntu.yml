@@ -89,3 +89,13 @@ jobs:
           file: ./cover.txt
           flags: unittests
           fail_ci_if_error: true
+
+  report:
+    name: Report Card
+    runs-on: ubuntu-18.04
+    timeout-minutes: 2
+    needs: build
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Test
+        uses: creekorful/goreportcard-action@v1.0
