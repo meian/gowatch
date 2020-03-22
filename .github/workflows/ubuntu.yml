@@ -97,5 +97,5 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/master'
     steps:
-      - name: Test
+      - name: Report
         uses: creekorful/goreportcard-action@v1.0
