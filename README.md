@@ -1,6 +1,8 @@
 # gowatch
 
-![Go](https://github.com/meian/gowatch/workflows/Go/badge.svg)
+![Build](https://github.com/meian/gowatch/workflows/Build/badge.svg)
+![Test](https://github.com/meian/gowatch/workflows/Test/badge.svg)
+
 [![GoDoc](https://godoc.org/github.com/meian/gowatch?status.svg)](https://godoc.org/github.com/meian/gowatch)
 [![GitHub license](https://img.shields.io/github/license/meian/gowatch?color=orange)](https://github.com/meian/gowatch/blob/master/LICENSE)
 [![codecov](https://codecov.io/gh/meian/gowatch/branch/master/graph/badge.svg)](https://codecov.io/gh/meian/gowatch)
