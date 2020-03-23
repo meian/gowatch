@@ -1,0 +1,34 @@
+name: Coverage
+on:
+  push:
+    branches-ignore:
+      - "doc/**"
+      - "noci/**"
+jobs:
+  converage:
+    name: Coverage
+    runs-on: ubuntu-18.04
+    timeout-minutes: 2
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+      - name: Cache
+        uses: actions/cache@v1
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ matrix.go-version }}-
+      - name: Report
+        run: go test ./... -race -coverprofile=./cover.txt -covermode=atomic
+      - name: Upload
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./cover.txt
+          flags: unittests
+          fail_ci_if_error: true

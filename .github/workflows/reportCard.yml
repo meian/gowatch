@@ -1,0 +1,13 @@
+name: ReportCard
+on:
+  push:
+    branches:
+      - master
+jobs:
+  report:
+    name: Report Card
+    runs-on: ubuntu-18.04
+    timeout-minutes: 2
+    steps:
+      - name: Report
+        uses: creekorful/goreportcard-action@v1.0
