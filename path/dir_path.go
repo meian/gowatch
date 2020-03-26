@@ -9,14 +9,14 @@ import (
 
 // DirPath はソースコードのディレクトリパスを返す
 func DirPath(src string) string {
-	pkg := filepath.Dir(UnixPath(src))
+	pkg := filepath.Dir(filepath.ToSlash(src))
 	switch pkg {
 	case "", ".":
 		return "."
 	case "..":
 		return ".."
 	}
-	pkg = UnixPath(pkg)
+	pkg = filepath.ToSlash(pkg)
 	if m, _ := regexp.MatchString(pattern(), pkg); m {
 		return pkg
 	}
