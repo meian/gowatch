@@ -1,7 +1,6 @@
 package path_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/meian/gowatch/path"
@@ -10,76 +9,61 @@ import (
 )
 
 func TestDirPath(t *testing.T) {
+	// WindowsパスのテストはWindows上のみで行う
+	// UnixパスのテストはWindowsも含めて全環境で行う
 	tests := []struct {
-		desc      string
-		src       string
-		dirIsUnix string
-		dirIsWin  string
+		desc   string
+		src    string
+		dir    string
+		forWin bool
 	}{
-		{
-			desc:      "normal path",
-			src:       "foo/bar.go",
-			dirIsUnix: "./foo",
-			dirIsWin:  "./foo",
+		{desc: "normal path",
+			src: "foo/bar.go",
+			dir: "./foo",
 		},
-		{
-			desc:      "win normal path",
-			src:       `foo\bar.go`,
-			dirIsUnix: `./foo`,
-			dirIsWin:  `./foo`,
+		{desc: "win normal path",
+			src:    `foo\bar.go`,
+			dir:    `./foo`,
+			forWin: true,
 		},
-		{
-			desc:      "dot start path",
-			src:       "./foo/bar.go",
-			dirIsUnix: "./foo",
-			dirIsWin:  "./foo",
+		{desc: "dot start path",
+			src: "./foo/bar.go",
+			dir: "./foo",
 		},
-		{
-			desc:      "double dot start path",
-			src:       "../foo/bar.go",
-			dirIsUnix: "../foo",
-			dirIsWin:  "../foo",
+		{desc: "double dot start path",
+			src: "../foo/bar.go",
+			dir: "../foo",
 		},
-		{
-			desc:      "unix full path",
-			src:       "/foo/bar.go",
-			dirIsUnix: "/foo",
-			dirIsWin:  "/foo",
+		{desc: "unix full path",
+			src: "/foo/bar.go",
+			dir: "/foo",
 		},
-		{
-			desc:      "win full path",
-			src:       `c:\foo\bar.go`,
-			dirIsUnix: `./c:/foo`, // no occurred
-			dirIsWin:  `c:/foo`,
+		{desc: "win full path",
+			src:    `c:\foo\bar.go`,
+			dir:    `c:/foo`,
+			forWin: true,
 		},
-		{
-			desc:      "no path",
-			src:       "bar.go",
-			dirIsUnix: ".",
-			dirIsWin:  ".",
+		{desc: "no path",
+			src: "bar.go",
+			dir: ".",
 		},
-		{
-			desc:      "dot start no path",
-			src:       "./bar.go",
-			dirIsUnix: ".",
-			dirIsWin:  ".",
+		{desc: "dot start no path",
+			src: "./bar.go",
+			dir: ".",
 		},
-		{
-			desc:      "double dot start no path",
-			src:       "../bar.go",
-			dirIsUnix: "..",
-			dirIsWin:  "..",
+		{desc: "double dot start no path",
+			src: "../bar.go",
+			dir: "..",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.desc, func(t *testing.T) {
+			if !runtime.IsWindows && tt.forWin {
+				t.SkipNow()
+			}
 			a := assert.New(t)
-			runtime.IsWindows = false
 			dir := path.DirPath(tt.src)
-			a.Equal(tt.dirIsUnix, dir, fmt.Sprintln("unix", tt.src))
-			runtime.IsWindows = true
-			dir = path.DirPath(tt.src)
-			a.Equal(tt.dirIsWin, dir, fmt.Sprintln("windows", tt.src))
+			a.Equal(tt.dir, dir, tt.src)
 		})
 	}
 }
