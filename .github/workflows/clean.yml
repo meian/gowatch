@@ -20,7 +20,9 @@ jobs:
       - name: branch in Codecov
         shell: bash
         run: |
-          curl "$codecov_url" --header "Authorization: token $token" \
+          url="$codecov_url"
+          auth="Authorization: token $token"
+          curl "$url" --header "$auth" \
             | jq -r '.branches[].branch' \
             | tee artifact/codecov-branches.list
         env:
@@ -40,8 +42,10 @@ jobs:
           if [ ! -s artifact/target.list ] ; then
             exit 0
           fi
+          auth="Authorization: token $token"
           cat artifact/target.list | while read branch ; do
-            curl -X DELETE "$codecov_url/$branch" --header "Authorization: token $token"
+            url="$codecov_url/$branch"
+            curl -X DELETE "$url" --header "$auth" -s -o /dev/null -w '%{http_code} '
             echo "$branch"
           done | tee artifact/deleted.list
         env:
