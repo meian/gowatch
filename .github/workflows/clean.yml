@@ -8,14 +8,16 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
+      - name: init artifact
+        run: mkdir -p artifact
       - name: branch in GitHub
         run: |
           git fetch -p && git branch -r \
-            | awk '{ print gsub("origin/", "", $1) }' \
+            | cut -d/ -f2- | cut -d' ' -f1 \
             | egrep -v -e '^HEAD$' -e '^master$' \
-            | tee gh-branches.list
+            | tee artifact/gh-branches.list
       - name: artifacts
         uses: actions/upload-artifact@v1
         with:
-          name: github-branches
-          path: gh-branches.list
+          name: artifact
+          path: artifact
