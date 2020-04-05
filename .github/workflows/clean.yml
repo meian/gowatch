@@ -32,8 +32,8 @@ jobs:
           exists=$(cat artifact/github-branches.list)
           pattern="^($(echo $exists | tr ' ' '|'))$"
           echo $pattern
-          egrep -q -v "$pattern" artifact/github-branches.list || exit 0
-          egrep -h -v "$pattern" artifact/github-branches.list \
+          egrep -q -v "$pattern" artifact/codecov-branches.list || exit 0
+          egrep -h -v "$pattern" artifact/codecov-branches.list \
             | tee artifact/target.list
       - name: artifacts
         uses: actions/upload-artifact@v1
