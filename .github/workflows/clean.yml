@@ -30,8 +30,8 @@ jobs:
         shell: bash
         run: |
           cat artifact/codecov-branches.list | while read b ; do
-            egrep -q '^'$b'$' artifact/github-branches.list || echo $b > artifact/target.list
-          done
+            egrep -q '^'$b'$' artifact/github-branches.list || echo $b
+          done | tee artifact/target.list
       - name: artifacts
         uses: actions/upload-artifact@v1
         with:
