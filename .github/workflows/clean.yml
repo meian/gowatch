@@ -21,7 +21,7 @@ jobs:
         shell: bash --noprofile --norc -euo pipefail {0}
         run: |
           curl "$codecov_url" --header "Authorization: token $token" \
-            | jq '.branches[].branch' \
+            | jq '. | keys' \
             | tee artifact/codecov-branches.list
         env:
           codecov_url: "https://codecov.io/api/gh/${{ github.repository }}/branches"
