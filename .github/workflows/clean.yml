@@ -11,14 +11,14 @@ jobs:
       - name: init artifact
         run: mkdir -p artifact
       - name: branch in GitHub
-        shell: bash --noprofile --norc -euo pipefail {0}
+        shell: bash
         run: |
           git fetch -p && git branch -r \
             | cut -d/ -f2- | cut -d' ' -f1 \
             | egrep -v '^HEAD$' \
             | tee artifact/github-branches.list
       - name: branch in Codecov
-        shell: bash --noprofile --norc -euo pipefail {0}
+        shell: bash
         run: |
           curl "$codecov_url" --header "Authorization: token $token" \
             | jq '. | keys' \
@@ -27,7 +27,7 @@ jobs:
           codecov_url: "https://codecov.io/api/gh/${{ github.repository }}/branches"
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: detect target
-        shell: bash --noprofile --norc -euo pipefail {0}
+        shell: bash
         run: |
           cat artifact/codecov-branches.list | while read b ; do
             egrep -q '^'$b'$' artifact/github-branches.list || echo $b > artifact/target.list
