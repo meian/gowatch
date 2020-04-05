@@ -18,7 +18,7 @@ jobs:
             | tee artifact/github-branches.list
       - name: branch in Codecov
         run: |
-          curl "$URL" --header "Authorization: token $token" \
+          curl "$codecov_url" --header "Authorization: token $token" \
             | jq '.branches[].branch' \
             | tee artifact/codecov-branches.list
         env:
