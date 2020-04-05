@@ -2,7 +2,7 @@ name: Clean
 on: push
 jobs:
   codecov:
-    name: Clean codecov branches
+    name: Codecov branches
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -14,8 +14,21 @@ jobs:
         run: |
           git fetch -p && git branch -r \
             | cut -d/ -f2- | cut -d' ' -f1 \
-            | egrep -v -e '^HEAD$' -e '^master$' \
-            | tee artifact/gh-branches.list
+            | egrep -v '^HEAD$' \
+            | tee artifact/github-branches.list
+      - name: branch in Codecov
+        run: |
+          curl "$URL" --header "Authorization: token $token" \
+            | jq '.branches[].branch' \
+            | tee artifact/codecov-branches.list
+        env:
+          codecov_url: "https://codecov.io/api/gh/${{ github.repository }}/branches"
+          token: ${{ secrets.CODECOV_TOKEN }}
+      - name: detect target
+        run: |
+          cat artifact/codecov-branches.list | while read b ; do
+            egrep -q '^'$b'$' artifact/github-branches.list || echo $b > artifact/target.list
+          done
       - name: artifacts
         uses: actions/upload-artifact@v1
         with:
