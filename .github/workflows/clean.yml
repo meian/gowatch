@@ -34,6 +34,19 @@ jobs:
           egrep -q -v "$pattern" artifact/codecov-branches.list || exit 0
           egrep -h -v "$pattern" artifact/codecov-branches.list \
             | tee artifact/target.list
+      - name: delete branches
+        shell: bash
+        run: |
+          if [ ! -s artifact/target.list ] ; then
+            exit 0
+          fi
+          cat artifact/target.list | while read branch ; do
+            curl -X DELETE "$codecov_url/$branch" --header "Authorization: token $token"
+            echo "$branch"
+          done | tee artifact/deleted.list
+        env:
+          codecov_url: "https://codecov.io/api/gh/${{ github.repository }}/branch"
+          token: ${{ secrets.CODECOV_API_TOKEN }}
       - name: artifacts
         uses: actions/upload-artifact@v1
         with:
