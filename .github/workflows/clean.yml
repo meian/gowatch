@@ -25,7 +25,7 @@ jobs:
             | tee artifact/codecov-branches.list
         env:
           codecov_url: "https://codecov.io/api/gh/${{ github.repository }}/branches"
-          token: ${{ secrets.CODECOV_TOKEN }}
+          token: "${{ secrets.CODECOV_TOKEN }}"
       - name: detect target
         shell: bash
         run: |
