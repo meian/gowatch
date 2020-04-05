@@ -2,7 +2,7 @@ name: Clean
 on: push
 jobs:
   codecov:
-    name: Coverage
+    name: Clean codecov branches
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -10,7 +10,12 @@ jobs:
         uses: actions/checkout@v2
       - name: branch in GitHub
         run: |
-          git branch -r \
+          git fetch -p && git branch -r \
             | awk '{ print gsub("origin/", "", $1) }' \
             | egrep -v -e '^HEAD$' -e '^master$' \
-            | tee gh-branch.list
+            | tee gh-branches.list
+      - name: artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: github-branches
+          path: gh-branches.list
