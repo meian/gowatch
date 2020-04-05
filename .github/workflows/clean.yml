@@ -21,7 +21,7 @@ jobs:
         shell: bash
         run: |
           curl "$codecov_url" --header "Authorization: token $token" \
-            | jq '.branches[].branch' \
+            | jq -r '.branches[].branch' \
             | tee artifact/codecov-branches.list
         env:
           codecov_url: "https://codecov.io/api/gh/${{ github.repository }}/branches"
@@ -31,7 +31,6 @@ jobs:
         run: |
           exists=$(cat artifact/github-branches.list)
           pattern="^($(echo $exists | tr ' ' '|'))$"
-          echo $pattern
           egrep -q -v "$pattern" artifact/codecov-branches.list || exit 0
           egrep -h -v "$pattern" artifact/codecov-branches.list \
             | tee artifact/target.list
