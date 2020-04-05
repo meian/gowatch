@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/meian/gowatch/path"
-	"github.com/meian/gowatch/runtime"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -58,7 +57,7 @@ func TestDirPath(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.desc, func(t *testing.T) {
-			if !runtime.IsWindows && tt.forWin {
+			if !winTest && tt.forWin {
 				t.SkipNow()
 			}
 			a := assert.New(t)
