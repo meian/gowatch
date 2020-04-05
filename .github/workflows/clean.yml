@@ -29,9 +29,11 @@ jobs:
       - name: detect target
         shell: bash
         run: |
-          cat artifact/codecov-branches.list | while read b ; do
-            egrep -q '^'$b'$' artifact/github-branches.list || echo $b
-          done | tee artifact/target.list
+          exists=$(cat artifact/github-branches.list)
+          pattern="^($(echo $exists | tr ' ' '|'))$"
+          egrep -q "$pattern" artifact/github-branches.list || exit 0
+          egrep -h "$pattern" artifact/github-branches.list \
+            | tee artifact/target.list
       - name: artifacts
         uses: actions/upload-artifact@v1
         with:
