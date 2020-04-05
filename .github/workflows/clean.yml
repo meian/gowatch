@@ -1,0 +1,16 @@
+name: Clean
+on: push
+jobs:
+  codecov:
+    name: Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: branch in GitHub
+        run: |
+          git branch -r \
+            | awk '{ print gsub("origin/", "", $1) }' \
+            | egrep -v -e '^HEAD$' -e '^master$' \
+            | tee gh-branch.list
