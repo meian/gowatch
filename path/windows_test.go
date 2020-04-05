@@ -3,5 +3,5 @@
 package path_test
 
 const (
-	winTest = false
+	winTest = true
 )
