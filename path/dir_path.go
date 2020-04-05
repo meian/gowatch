@@ -3,9 +3,15 @@ package path
 import (
 	"path/filepath"
 	"regexp"
-
-	"github.com/meian/gowatch/runtime"
 )
+
+var (
+	pattern *regexp.Regexp
+)
+
+func init() {
+	pattern = buildPattern()
+}
 
 // DirPath はソースコードのディレクトリパスを返す
 func DirPath(src string) string {
@@ -17,15 +23,8 @@ func DirPath(src string) string {
 		return ".."
 	}
 	pkg = filepath.ToSlash(pkg)
-	if m, _ := regexp.MatchString(pattern(), pkg); m {
+	if pattern.MatchString(pkg) {
 		return pkg
 	}
 	return "./" + pkg
-}
-
-func pattern() string {
-	if runtime.IsWindows {
-		return `^(\w:|\.{0,2}/)`
-	}
-	return `^\.{0,2}/`
 }
