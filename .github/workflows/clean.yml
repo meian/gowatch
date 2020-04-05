@@ -21,7 +21,7 @@ jobs:
         shell: bash
         run: |
           curl "$codecov_url" --header "Authorization: token $token" \
-            | jq '. | keys' \
+            | jq '.' \
             | tee artifact/codecov-branches.list
         env:
           codecov_url: "https://codecov.io/api/gh/${{ github.repository }}/branches"
