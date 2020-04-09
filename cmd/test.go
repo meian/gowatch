@@ -35,7 +35,7 @@ func init() {
 }
 
 func testAction(c *cli.Context) error {
-	config := test.GetConfig(c)
+	config := test.NewConfig(c)
 	nc, err := test.NewContext(config)
 	if err != nil {
 		log.Println(err)

@@ -17,8 +17,8 @@ type Config struct {
 	Verbose bool
 }
 
-// GetConfig はコマンド実行情報から生成した設定値を返す
-func GetConfig(c *cli.Context) *Config {
+// NewConfig は設定情報を生成する
+func NewConfig(c *cli.Context) *Config {
 	return &Config{
 		Dir:       getDir(c),
 		Recursive: c.Bool("recursive"),
