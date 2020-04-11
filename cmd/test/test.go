@@ -65,9 +65,6 @@ func cmdArgs(c *Context, src string) ([]string, error) {
 		return nil, err
 	}
 	args := []string{"test", path.DirPath(src), "-run", pattern}
-	if c.Config.Verbose {
-		args = append(args, "-v")
-	}
 	return args, nil
 }
 

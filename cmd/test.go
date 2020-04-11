@@ -23,11 +23,6 @@ func init() {
 				Aliases: []string{"r"},
 				Usage:   "include subdirectories",
 			},
-			&cli.BoolFlag{
-				Name:    "verbose",
-				Aliases: []string{"v"},
-				Usage:   "show detail",
-			},
 		},
 		ArgsUsage: "[PATH]",
 		Action:    testAction,

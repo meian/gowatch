@@ -13,8 +13,6 @@ type Config struct {
 	Dir string
 	// Recursive はサブディレクトリを監視するかどうか
 	Recursive bool
-	// Verbose は詳細を表示するかどうか
-	Verbose bool
 }
 
 // NewConfig は設定情報を生成する
@@ -22,7 +20,6 @@ func NewConfig(c *cli.Context) *Config {
 	return &Config{
 		Dir:       getDir(c),
 		Recursive: c.Bool("recursive"),
-		Verbose:   c.Bool("verbose"),
 	}
 }
 
