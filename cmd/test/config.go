@@ -1,8 +1,10 @@
 package test
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
+	"path/filepath"
+	"strings"
 
 	"github.com/urfave/cli/v2"
 )
@@ -11,31 +13,44 @@ import (
 type Config struct {
 	// Dir は監視対象のディレクトリパス
 	Dir string
+	// Args は go test に渡す引数
+	Args []string
 	// Recursive はサブディレクトリを監視するかどうか
 	Recursive bool
-	// Verbose は詳細を表示するかどうか
-	Verbose bool
 }
 
-// GetConfig はコマンド実行情報から生成した設定値を返す
-func GetConfig(c *cli.Context) *Config {
-	return &Config{
-		Dir:       getDir(c),
+// NewConfig は設定情報を生成する
+func NewConfig(c *cli.Context) (*Config, error) {
+	config := &Config{
+		Args:      []string{},
 		Recursive: c.Bool("recursive"),
-		Verbose:   c.Bool("verbose"),
 	}
-}
-
-func getDir(c *cli.Context) string {
-	if path := c.Args().Get(0); path != "" {
-		return path
+	args := c.Args().Slice()
+	if len(args) == 0 {
+		config.Dir = "."
+		return config, nil
 	}
-	return "."
+	if !strings.HasPrefix(args[0], "-") {
+		config.Dir = strings.TrimRight(filepath.ToSlash(args[0]), "/")
+		args = args[1:]
+	} else {
+		config.Dir = "."
+	}
+	if len(args) > 0 && args[0] == "--" {
+		args = args[1:]
+	}
+	for i := 0; i < len(args)-1; i++ {
+		if args[i] == "-run" {
+			return nil, errors.New("cannot use -run")
+		}
+	}
+	config.Args = args
+	return config, nil
 }
 
 // Show はコンフィグの情報を表示する
 func (c *Config) Show() {
-	println("Config:")
-	json, _ := json.MarshalIndent(c, "", "  ")
-	fmt.Println(string(json))
+	fmt.Println("directory:", c.Dir)
+	fmt.Println("recursive:", c.Recursive)
+	fmt.Println("arguments:", c.Args)
 }

@@ -10,6 +10,13 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+const (
+	testErrorConfig int = iota + 1
+	testErrorContext
+	testErrorWatcher
+	testErrorOnTest
+)
+
 // Test は変更監視とテストを実行するコマンド
 var Test *cli.Command
 
@@ -23,11 +30,6 @@ func init() {
 				Aliases: []string{"r"},
 				Usage:   "include subdirectories",
 			},
-			&cli.BoolFlag{
-				Name:    "verbose",
-				Aliases: []string{"v"},
-				Usage:   "show detail",
-			},
 		},
 		ArgsUsage: "[PATH]",
 		Action:    testAction,
@@ -35,15 +37,18 @@ func init() {
 }
 
 func testAction(c *cli.Context) error {
-	config := test.GetConfig(c)
+	config, err := test.NewConfig(c)
+	if err != nil {
+		return cli.Exit(fmt.Errorf("cannot create config: %s", err), testErrorConfig)
+	}
 	nc, err := test.NewContext(config)
 	if err != nil {
 		log.Println(err)
-		return cli.Exit("cannot create context", 1)
+		return cli.Exit("cannot create context", testErrorContext)
 	}
 	nc.Watcher, err = newWatcher(nc)
 	if err != nil {
-		return cli.Exit("cannot create watcher", 2)
+		return cli.Exit("cannot create watcher", testErrorWatcher)
 	}
 
 	terminal.Clear()
@@ -54,7 +59,7 @@ func testAction(c *cli.Context) error {
 	go test.LoopTest(nc)
 	err = <-nc.Done
 	if err != nil {
-		return cli.Exit(err, 3)
+		return cli.Exit(err, testErrorOnTest)
 	}
 	return nil
 }
