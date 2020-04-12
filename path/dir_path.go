@@ -15,7 +15,7 @@ func init() {
 
 // DirPath はソースコードのディレクトリパスを返す
 func DirPath(src string) string {
-	pkg := filepath.Dir(filepath.ToSlash(src))
+	pkg := filepath.Dir(src)
 	switch pkg {
 	case "", ".":
 		return "."
