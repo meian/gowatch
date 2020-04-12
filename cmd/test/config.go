@@ -11,8 +11,8 @@ import (
 
 // Config はWatcherの設定を保持する
 type Config struct {
-	// Dir は監視対象のディレクトリパス
-	Dir string
+	// Dirs は監視対象のディレクトリパス一覧
+	Dirs []string
 	// Args は go test に渡す引数
 	Args []string
 	// Recursive はサブディレクトリを監視するかどうか
@@ -21,36 +21,45 @@ type Config struct {
 
 // NewConfig は設定情報を生成する
 func NewConfig(c *cli.Context) (*Config, error) {
-	config := &Config{
-		Args:      []string{},
-		Recursive: c.Bool("recursive"),
-	}
-	args := c.Args().Slice()
-	if len(args) == 0 {
-		config.Dir = "."
-		return config, nil
-	}
-	if !strings.HasPrefix(args[0], "-") {
-		config.Dir = strings.TrimRight(filepath.ToSlash(args[0]), "/")
-		args = args[1:]
-	} else {
-		config.Dir = "."
-	}
-	if len(args) > 0 && args[0] == "--" {
-		args = args[1:]
-	}
-	for i := 0; i < len(args)-1; i++ {
-		if args[i] == "-run" {
+	dirs, args := parseArgs(c.Args().Slice())
+	correctDirs(dirs)
+	for _, arg := range args {
+		if arg == "-run" {
 			return nil, errors.New("cannot use -run")
 		}
 	}
-	config.Args = args
-	return config, nil
+	return &Config{
+		Dirs:      dirs,
+		Args:      args,
+		Recursive: c.Bool("recursive"),
+	}, nil
+}
+
+func parseArgs(slice []string) (dirs []string, args []string) {
+	dirs = []string{"."}
+	if len(slice) == 0 {
+		return dirs, []string{}
+	}
+	for i, arg := range slice {
+		if strings.HasPrefix(arg, "-") {
+			dirs, slice = slice[0:i], slice[i:]
+			break
+		}
+	}
+	if len(slice) > 0 && slice[0] == "--" {
+		slice = slice[1:]
+	}
+	return dirs, slice
+}
+
+func correctDirs(dirs []string) {
+	for i, dir := range dirs {
+		dirs[i] = strings.TrimRight(filepath.ToSlash(dir), "/")
+	}
 }
 
 // Show はコンフィグの情報を表示する
 func (c *Config) Show() {
-	fmt.Println("directory:", c.Dir)
-	fmt.Println("recursive:", c.Recursive)
+	fmt.Printf("directory: %v (recursive: %v)\n", c.Dirs, c.Recursive)
 	fmt.Println("arguments:", c.Args)
 }
