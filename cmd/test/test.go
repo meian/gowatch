@@ -64,7 +64,7 @@ func cmdArgs(c *Context, src string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	args := append([]string{"test", path.DirPath(src), "-run", pattern}, c.Config.Args...)
+	args := append([]string{"test", path.DirPath(src), "-run", pattern}, c.Args...)
 	return args, nil
 }
 
