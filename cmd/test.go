@@ -53,7 +53,6 @@ func testAction(c *cli.Context) error {
 
 	terminal.Clear()
 	config.Show()
-	fmt.Println("========================================")
 	fmt.Println("watch directories:", nc.Directories)
 
 	go test.LoopFSEvent(nc)
