@@ -3,6 +3,11 @@ on:
   push:
     branches:
       - master
+    paths:
+      - .github/workflows/reportCard.yml
+      - "**.go"
+      - go.sum
+      - go.mod
 jobs:
   report:
     name: Report Card
