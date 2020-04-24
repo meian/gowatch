@@ -1,9 +1,19 @@
 name: Coverage
 on:
   push:
-    branches-ignore:
-      - "doc/**"
-      - "noci/**"
+    paths:
+      - .github/workflows/coverage.yml
+      - "**.go"
+      - go.sum
+      - go.mod
+      - codecov.yml
+  pull_request:
+    paths:
+      - .github/workflows/coverage.yml
+      - "**.go"
+      - go.sum
+      - go.mod
+      - codecov.yml
 jobs:
   converage:
     name: Coverage

@@ -1,9 +1,17 @@
 name: Test
 on:
   push:
-    branches-ignore:
-      - "doc/**"
-      - "noci/**"
+    paths:
+      - .github/workflows/test.yml
+      - "**.go"
+      - go.sum
+      - go.mod
+  pull_request:
+    paths:
+      - .github/workflows/test.yml
+      - "**.go"
+      - go.sum
+      - go.mod
 jobs:
   test:
     name: Test

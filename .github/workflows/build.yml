@@ -1,9 +1,17 @@
 name: Build
 on:
   push:
-    branches-ignore:
-      - "doc/**"
-      - "noci/**"
+    paths:
+      - .github/workflows/build.yml
+      - "**.go"
+      - go.sum
+      - go.mod
+  pull_request:
+    paths:
+      - .github/workflows/build.yml
+      - "**.go"
+      - go.sum
+      - go.mod
 jobs:
   build:
     name: Build
