@@ -12,6 +12,8 @@ on:
       - "**.go"
       - go.sum
       - go.mod
+  workflow_dispatch:
+    branches: [ "*" ]
 jobs:
   build:
     name: Build
