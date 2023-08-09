@@ -21,7 +21,7 @@ env:
 jobs:
   converage:
     name: Coverage
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 2
     steps:
       - name: Set up Go
